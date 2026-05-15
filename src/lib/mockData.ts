@@ -12,12 +12,12 @@ export const mockCategorias: Categoria[] = [
 ];
 
 export const mockCarreras = [
-  { id: 'diseno-grafico', nombre: 'Diseño Gráfico' },
-  { id: 'diseno-industrial', nombre: 'Diseño Industrial' },
-  { id: 'diseno-modas', nombre: 'Diseño de Modas' },
-  { id: 'diseno-interiores', nombre: 'Diseño de Interiores' },
-  { id: 'fotografia', nombre: 'Fotografía' },
-  { id: 'produccion-audiovisual', nombre: 'Producción Audiovisual' },
+  { id: 'grafico', nombre: 'Gráfico' },
+  { id: 'industrial', nombre: 'Industrial' },
+  { id: 'modas', nombre: 'Modas' },
+  { id: 'interiores', nombre: 'Interiores' },
+  { id: 'fotografico', nombre: 'Fotográfico' },
+  { id: 'multimedia', nombre: 'Multimedia' },
 ];
 
 export const mockCentralCards = [

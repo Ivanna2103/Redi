@@ -1,9 +1,11 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
+import { Download, Lock } from "lucide-react";
 import { Recurso, Carrera, Categoria } from "@/types";
 
 interface QuickViewModalProps {
@@ -70,9 +72,16 @@ export function QuickViewModal({
             </div>
 
             <div className="mt-8">
-              <Button onClick={handleDownload} className="w-full bg-black hover:bg-gray-800 text-white shadow-lg transition-transform active:scale-95">
-                {isLoggedIn ? "Descargar Recurso" : "Iniciar Sesión para Descargar"}
-              </Button>
+              {isLoggedIn ? (
+                <Button onClick={handleDownload} className="w-full bg-black hover:bg-gray-800 text-white shadow-lg transition-transform active:scale-95 h-12 rounded-xl font-bold">
+                  Descargar Recurso
+                </Button>
+              ) : (
+                <Link href="/auth/login" className="w-full h-12 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-xl font-bold flex items-center justify-center gap-2 transition-all border border-gray-200">
+                  <Lock className="w-4 h-4" />
+                  Iniciar Sesión para Descargar
+                </Link>
+              )}
             </div>
           </div>
         </div>

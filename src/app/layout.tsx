@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
-  title: 'Recursos Gráficos | Plataforma para Estudiantes',
-  description: 'Explora, filtra y descarga recursos gráficos para tus proyectos de diseño en Quito.',
+  title: 'Redi | Recursos Gráficos para La Metro',
+  description: 'Explora, filtra y descarga recursos gráficos exclusivos.',
 };
 
 export default function RootLayout({
@@ -12,11 +13,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
+    <html lang="es" suppressHydrationWarning>
       <body className="font-sans antialiased">
-        <div className="flex flex-col min-h-screen bg-white">
-          {children}
-        </div>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <div className="flex flex-col min-h-screen">
+            {children}
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );
