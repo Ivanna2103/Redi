@@ -48,104 +48,131 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen flex bg-white font-sans">
+    <div className="min-h-screen flex bg-redi-beige dark:bg-redi-vino font-sans transition-colors duration-300">
       {/* Lado Izquierdo: Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-black flex-col justify-between p-12 text-white">
+      <div className="hidden lg:flex lg:w-[45%] bg-transparent flex-col justify-between p-12 text-redi-vino dark:text-redi-beige transition-colors duration-300">
         <div>
-          <Image src="/redi-logo.svg" alt="Redi Logo" width={120} height={50} className="invert brightness-0" />
-          <div className="mt-20">
-            <h1 className="text-5xl font-bold leading-tight">Únete a la comunidad creativa.</h1>
-            <p className="mt-4 text-gray-400 text-lg">Tu espacio para recursos de diseño ilimitados.</p>
+          {/* Logo Masivo usando Mask */}
+          <div 
+            className="w-[300px] h-[115px] md:w-[420px] md:h-[160px] bg-redi-vino dark:bg-redi-beige -ml-4"
+            style={{
+              maskImage: 'url(/redi-logo.svg)',
+              WebkitMaskImage: 'url(/redi-logo.svg)',
+              maskSize: 'contain',
+              WebkitMaskSize: 'contain',
+              maskRepeat: 'no-repeat',
+              WebkitMaskRepeat: 'no-repeat',
+              maskPosition: 'left',
+              WebkitMaskPosition: 'left'
+            }}
+            aria-label="Redi Logo"
+          />
+          <div className="mt-16 max-w-xl">
+            <h1 className="text-5xl font-bold leading-tight mb-6">Donde las grandes mentes crean juntas.</h1>
+            <p className="text-2xl font-bold">Únete al club creativo</p>
           </div>
         </div>
-        <div className="text-sm text-gray-500">© 2024 Redi. Todos los derechos reservados.</div>
+        <div className="text-sm text-redi-vino/50 dark:text-redi-beige/50 font-medium">© 2026 Redi Assets. Todos los derechos reservados.</div>
       </div>
 
       {/* Lado Derecho: Formulario */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 overflow-y-auto">
+      <div className="w-full lg:w-[55%] flex items-center justify-center p-6 md:p-12 overflow-y-auto bg-transparent">
         <div className="w-full max-w-md py-8">
-          <div className="lg:hidden mb-8">
-            <Image src="/redi-logo.svg" alt="Redi Logo" width={90} height={35} />
+          <div className="lg:hidden mb-12 flex justify-center">
+            <div 
+              className="w-[200px] h-[75px] bg-redi-vino dark:bg-redi-beige"
+              style={{
+                maskImage: 'url(/redi-logo.svg)',
+                WebkitMaskImage: 'url(/redi-logo.svg)',
+                maskSize: 'contain',
+                WebkitMaskSize: 'contain',
+                maskRepeat: 'no-repeat',
+                WebkitMaskRepeat: 'no-repeat',
+                maskPosition: 'center',
+                WebkitMaskPosition: 'center'
+              }}
+              aria-label="Redi Logo"
+            />
           </div>
 
-          <div className="mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 leading-tight">Crea tu cuenta</h2>
-            <p className="text-gray-500 text-sm mt-2">
+          <div className="mb-10 text-center lg:text-left">
+            <h2 className="text-3xl md:text-4xl font-bold text-redi-vino dark:text-redi-beige leading-tight">Crea tu cuenta</h2>
+            <p className="text-redi-vino/60 dark:text-redi-beige/60 text-sm mt-3">
               ¿Ya tienes cuenta? {" "}
-              <Link href="/auth/login" className="text-black font-bold hover:underline">Inicia sesión</Link>
+              <Link href="/auth/login" className="text-redi-vino dark:text-redi-beige font-bold hover:text-redi-red transition-colors hover:underline">Inicia sesión</Link>
             </p>
           </div>
 
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 text-red-600 text-sm">
+            <div className="mb-6 p-4 bg-redi-red/10 border border-redi-red/20 rounded-xl flex items-center gap-3 text-redi-red text-sm font-bold">
               <AlertCircle className="w-4 h-4 shrink-0" />
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSignUp} className="space-y-4">
+          <form onSubmit={handleSignUp} className="space-y-5">
             {/* Nombre */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Nombre Completo</label>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-redi-vino/50 dark:text-redi-beige/50 uppercase tracking-widest ml-1 block">Nombre Completo</label>
               <div className="relative">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300" />
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-redi-vino/40 dark:text-redi-beige/40" />
                 <input
                   type="text"
                   value={nombre}
                   onChange={(e) => setNombre(e.target.value)}
                   placeholder="Tu nombre"
-                  className="w-full h-14 pl-12 pr-4 bg-gray-50 border border-gray-100 rounded-2xl focus:bg-white focus:ring-2 focus:ring-black outline-none transition-all"
+                  className="w-full h-12 pl-11 pr-4 bg-transparent border border-redi-vino/20 dark:border-redi-beige/20 rounded-xl focus:ring-2 focus:ring-redi-red text-redi-vino dark:text-redi-beige placeholder:text-redi-vino/30 dark:placeholder:text-redi-beige/30 outline-none transition-all text-sm"
                   required
                 />
               </div>
             </div>
 
             {/* Carrera */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Carrera</label>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-redi-vino/50 dark:text-redi-beige/50 uppercase tracking-widest ml-1 block">Carrera</label>
               <div className="relative">
-                <GraduationCap className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300" />
+                <GraduationCap className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-redi-vino/40 dark:text-redi-beige/40" />
                 <select
                   value={carrera}
                   onChange={(e) => setCarrera(e.target.value)}
-                  className="w-full h-14 pl-12 pr-4 bg-gray-50 border border-gray-100 rounded-2xl focus:bg-white focus:ring-2 focus:ring-black outline-none transition-all appearance-none"
+                  className="w-full h-12 pl-11 pr-4 bg-transparent border border-redi-vino/20 dark:border-redi-beige/20 rounded-xl focus:ring-2 focus:ring-redi-red text-redi-vino dark:text-redi-beige outline-none transition-all appearance-none text-sm"
                   required
                 >
-                  <option value="" disabled>Selecciona tu carrera</option>
+                  <option value="" disabled className="text-redi-vino/50 dark:text-redi-beige/50">Selecciona tu carrera</option>
                   {mockCarreras.map((c) => (
-                    <option key={c.id} value={c.nombre}>{c.nombre}</option>
+                    <option key={c.id} value={c.nombre} className="text-black">{c.nombre}</option>
                   ))}
                 </select>
               </div>
             </div>
 
             {/* Email */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Email</label>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-redi-vino/50 dark:text-redi-beige/50 uppercase tracking-widest ml-1 block">Email Institucional</label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-redi-vino/40 dark:text-redi-beige/40" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="nombre@estudiante.com"
-                  className="w-full h-14 pl-12 pr-4 bg-gray-50 border border-gray-100 rounded-2xl focus:bg-white focus:ring-2 focus:ring-black outline-none transition-all"
+                  placeholder="nombre@lametro.edu.ec"
+                  className="w-full h-12 pl-11 pr-4 bg-transparent border border-redi-vino/20 dark:border-redi-beige/20 rounded-xl focus:ring-2 focus:ring-redi-red text-redi-vino dark:text-redi-beige placeholder:text-redi-vino/30 dark:placeholder:text-redi-beige/30 outline-none transition-all text-sm"
                   required
                 />
               </div>
             </div>
 
             {/* Password */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Contraseña</label>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-redi-vino/50 dark:text-redi-beige/50 uppercase tracking-widest ml-1 block">Contraseña</label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-redi-vino/40 dark:text-redi-beige/40" />
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Mínimo 6 caracteres"
-                  className="w-full h-14 pl-12 pr-4 bg-gray-50 border border-gray-100 rounded-2xl focus:bg-white focus:ring-2 focus:ring-black outline-none transition-all"
+                  className="w-full h-12 pl-11 pr-4 bg-transparent border border-redi-vino/20 dark:border-redi-beige/20 rounded-xl focus:ring-2 focus:ring-redi-red text-redi-vino dark:text-redi-beige placeholder:text-redi-vino/30 dark:placeholder:text-redi-beige/30 outline-none transition-all text-sm"
                   required
                   minLength={6}
                 />
@@ -154,7 +181,7 @@ export default function SignUpPage() {
 
             <button
               disabled={loading}
-              className="w-full h-14 bg-black text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-gray-800 transition-all active:scale-[0.98] disabled:opacity-50 mt-6 shadow-xl shadow-black/10"
+              className="w-full h-14 bg-redi-red text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-redi-red/90 transition-all active:scale-[0.98] disabled:opacity-50 mt-8 shadow-xl shadow-redi-red/20 uppercase tracking-widest text-xs"
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Crear cuenta <ArrowRight className="w-5 h-5" /></>}
             </button>
