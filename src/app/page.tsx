@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -11,13 +11,18 @@ import { Categoria } from "@/types";
 import { mockCategorias, mockCentralCards, mockCarreras } from "@/lib/mockData";
 import { ThemeToggle } from "@/components/theme-toggle";
 
-export default function Home() {
+function HomeContent() {
   const searchParams = useSearchParams();
   const [busqueda, setBusqueda] = useState("");
   const [carreraSeleccionada, setCarreraSeleccionada] = useState<string | null>(null);
+  const queryCategoria = searchParams.get('categoria');
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<string | null>(
-    searchParams.get('categoria')
+    queryCategoria
   );
+
+  useEffect(() => {
+    setCategoriaSeleccionada(queryCategoria);
+  }, [queryCategoria]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [recursos, setRecursos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,16 +75,36 @@ export default function Home() {
       recurso.tags?.some((tag: string) => tag.toLowerCase() === carreraSeleccionada.toLowerCase()) ||
       recurso.carrera?.toLowerCase() === carreraSeleccionada.toLowerCase();
 
-    const cumpleCategoria = !categoriaSeleccionada || 
-      recurso.categoria_id === categoriaSeleccionada ||
-      recurso.categoria?.nombre?.toLowerCase() === categoriaSeleccionada.toLowerCase();
+    let selectedCat = categoriaSeleccionada;
+    if (selectedCat) {
+      if (selectedCat.toLowerCase() === 'vectores') {
+        selectedCat = 'Ilustraciones';
+      } else if (selectedCat.toLowerCase() === 'imágenes') {
+        selectedCat = 'Fotos';
+      } else if (selectedCat.toLowerCase() === 'mockups') {
+        selectedCat = 'Mock ups';
+      } else if (selectedCat.toLowerCase() === 'modelos 3d') {
+        selectedCat = '3D';
+      }
+    }
+
+    const categoryObj = categorias.find(cat => 
+      cat.id === selectedCat || 
+      cat.nombre?.toLowerCase() === selectedCat?.toLowerCase() ||
+      cat.slug?.toLowerCase() === selectedCat?.toLowerCase()
+    );
+
+    const cumpleCategoria = !selectedCat || 
+      recurso.categoria_id === selectedCat ||
+      (categoryObj && recurso.categoria_id === categoryObj.id) ||
+      recurso.categoria?.nombre?.toLowerCase() === selectedCat?.toLowerCase();
 
     return cumpleBusqueda && cumpleCarrera && cumpleCategoria;
   });
 
   return (
     <main className="min-h-screen bg-redi-beige dark:bg-redi-vino text-redi-vino dark:text-redi-beige font-sans transition-colors duration-300">
-      <nav className="border-b border-redi-vino/10 dark:border-redi-beige/10 flex flex-col sticky top-0 bg-redi-beige/80 dark:bg-redi-vino/80 backdrop-blur-md z-50 shadow-sm">
+      <nav className="border-b border-redi-vino/10 dark:border-redi-beige/25 flex flex-col sticky top-0 bg-redi-beige/80 dark:bg-redi-vino/80 backdrop-blur-md z-50 shadow-sm">
         {/* Top row */}
         <div className="h-16 md:h-20 flex items-center justify-between px-6 md:px-10">
           <div className="flex-shrink-0">
@@ -181,7 +206,7 @@ export default function Home() {
               className={`whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 border ${
                 carreraSeleccionada === null
                   ? "bg-redi-red text-white border-redi-red shadow-md shadow-redi-red/20"
-                  : "bg-transparent text-redi-vino/60 dark:text-redi-beige/60 border-redi-vino/10 dark:border-redi-beige/10 hover:border-redi-red hover:text-redi-red dark:hover:text-redi-red"
+                  : "bg-transparent text-redi-vino/60 dark:text-redi-beige/60 border-redi-vino/10 dark:border-redi-beige/25 hover:border-redi-red hover:text-redi-red dark:hover:text-redi-red"
               }`}
             >
               Todas
@@ -193,7 +218,7 @@ export default function Home() {
                 className={`whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 border ${
                   carreraSeleccionada === carrera.nombre
                     ? "bg-redi-red text-white border-redi-red shadow-md shadow-redi-red/20"
-                    : "bg-transparent text-redi-vino/60 dark:text-redi-beige/60 border-redi-vino/10 dark:border-redi-beige/10 hover:border-redi-red hover:text-redi-red dark:hover:text-redi-red"
+                    : "bg-transparent text-redi-vino/60 dark:text-redi-beige/60 border-redi-vino/10 dark:border-redi-beige/25 hover:border-redi-red hover:text-redi-red dark:hover:text-redi-red"
                 }`}
               >
                 {carrera.nombre}
@@ -205,7 +230,7 @@ export default function Home() {
 
       <div className="flex w-full min-h-[calc(100vh-7rem)]">
         {/* Sidebar */}
-        <aside className="w-64 border-r border-redi-vino/10 dark:border-redi-beige/10 p-6 hidden md:block bg-redi-beige dark:bg-redi-vino h-[calc(100vh-5rem)] sticky top-20 transition-colors">
+        <aside className="w-64 border-r border-redi-vino/10 dark:border-redi-beige/25 p-6 hidden md:block bg-redi-beige dark:bg-redi-vino h-[calc(100vh-5rem)] sticky top-20 transition-colors">
           <h2 className="text-[10px] font-bold text-redi-vino/40 dark:text-redi-beige/40 uppercase tracking-[0.2em] mb-6 text-center">Categorías</h2>
           <ul className="space-y-1">
             <li>
@@ -225,7 +250,15 @@ export default function Home() {
                 <button
                   onClick={() => setCategoriaSeleccionada(cat.id)}
                   className={`w-full text-left px-4 py-3 rounded-2xl text-sm font-bold transition-all capitalize ${
-                    categoriaSeleccionada === cat.id 
+                    (categoriaSeleccionada === cat.id || 
+                     (categoriaSeleccionada && (
+                       cat.nombre?.toLowerCase() === categoriaSeleccionada.toLowerCase() ||
+                       cat.slug?.toLowerCase() === categoriaSeleccionada.toLowerCase() ||
+                       (categoriaSeleccionada.toLowerCase() === 'vectores' && cat.nombre?.toLowerCase() === 'ilustraciones') ||
+                       (categoriaSeleccionada.toLowerCase() === 'imágenes' && cat.nombre?.toLowerCase() === 'fotos') ||
+                       (categoriaSeleccionada.toLowerCase() === 'mockups' && cat.nombre?.toLowerCase() === 'mock ups') ||
+                       (categoriaSeleccionada.toLowerCase() === 'modelos 3d' && cat.nombre?.toLowerCase() === '3d')
+                     )))
                     ? "bg-redi-red text-white shadow-lg shadow-redi-red/20" 
                     : "text-redi-vino/60 dark:text-redi-beige/60 hover:text-redi-red hover:bg-redi-red/10"
                   }`}
@@ -272,7 +305,7 @@ export default function Home() {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
-              <div className="w-16 h-16 bg-white dark:bg-redi-vino/40 rounded-2xl flex items-center justify-center shadow-sm border border-redi-vino/10 dark:border-redi-beige/10 mb-4">
+              <div className="w-16 h-16 bg-white dark:bg-redi-vino/40 rounded-2xl flex items-center justify-center shadow-sm border border-redi-vino/10 dark:border-redi-beige/25 mb-4">
                 <Search className="w-6 h-6 text-redi-vino/20 dark:text-redi-beige/20" />
               </div>
               <h3 className="text-redi-vino dark:text-redi-beige font-bold">No encontramos resultados</h3>
@@ -288,5 +321,17 @@ export default function Home() {
         </main>
       </div>
     </main>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-redi-beige dark:bg-redi-vino">
+        <div className="w-8 h-8 border-4 border-redi-vino dark:border-redi-beige border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
   );
 }

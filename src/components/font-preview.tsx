@@ -44,7 +44,7 @@ export function FontPreview({ fontFamily, fontUrl, designer, downloadUrl }: Font
   }, [fontUrl, fontFamily]);
 
   return (
-    <div className="w-full bg-white/50 dark:bg-redi-vino/40 border border-redi-vino/10 dark:border-redi-beige/10 rounded-[40px] p-8 md:p-12 shadow-sm transition-colors">
+    <div className="w-full bg-white/50 dark:bg-redi-vino/40 border border-redi-vino/10 dark:border-redi-beige/25 rounded-[40px] p-8 md:p-12 shadow-sm transition-colors">
       {/* Header del Previsualizador */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
         <div>
@@ -63,14 +63,14 @@ export function FontPreview({ fontFamily, fontUrl, designer, downloadUrl }: Font
       </div>
 
       {/* Controles */}
-      <div className="flex flex-col md:flex-row items-center gap-6 mb-12 bg-white/50 dark:bg-redi-vino/20 p-6 rounded-[32px] border border-redi-vino/10 dark:border-redi-beige/10">
+      <div className="flex flex-col md:flex-row items-center gap-6 mb-12 bg-white/50 dark:bg-redi-vino/20 p-6 rounded-[32px] border border-redi-vino/10 dark:border-redi-beige/25">
         <div className="flex-1 w-full">
           <input
             type="text"
             value={text}
             onChange={(e) => setText(e.target.value.toUpperCase())}
             placeholder="Prueba la fuente aquí..."
-            className="w-full bg-white/50 dark:bg-redi-vino/40 border border-redi-vino/10 dark:border-redi-beige/10 rounded-2xl px-6 py-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-redi-red transition-all text-redi-vino dark:text-redi-beige"
+            className="w-full bg-white/50 dark:bg-redi-vino/40 border border-redi-vino/10 dark:border-redi-beige/25 rounded-2xl px-6 py-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-redi-red transition-all text-redi-vino dark:text-redi-beige"
           />
         </div>
         
@@ -92,7 +92,7 @@ export function FontPreview({ fontFamily, fontUrl, designer, downloadUrl }: Font
       {/* Lista de Variantes */}
       <div className="space-y-12">
         {defaultVariants.map((variant, i) => (
-          <div key={i} className="border-t border-redi-vino/10 dark:border-redi-beige/10 pt-10">
+          <div key={i} className="border-t border-redi-vino/10 dark:border-redi-beige/25 pt-10">
             <div className="flex items-center justify-between mb-6">
               <span className="text-[10px] font-bold text-redi-vino/50 dark:text-redi-beige/50 uppercase tracking-[0.3em]">
                 {variant.label}

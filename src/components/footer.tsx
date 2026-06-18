@@ -6,7 +6,7 @@ import { Instagram, Facebook } from 'lucide-react';
 
 export function Footer() {
   return (
-    <footer className="w-full bg-redi-beige dark:bg-redi-vino text-redi-vino dark:text-redi-beige pt-16 pb-8 px-6 md:px-12 mt-auto border-t border-redi-vino/10 dark:border-redi-beige/10 transition-colors duration-300">
+    <footer className="w-full bg-redi-beige dark:bg-redi-vino text-redi-vino dark:text-redi-beige pt-16 pb-8 px-6 md:px-12 mt-auto border-t border-redi-vino/10 dark:border-redi-beige/25 transition-colors duration-300">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between gap-12 mb-16">
         
         {/* Logo Columna y Social */}
@@ -71,7 +71,7 @@ export function Footer() {
             <ul className="space-y-4 text-[13px] font-medium opacity-80">
               <li><Link href="/?categoria=Fuentes" className="hover:underline underline-offset-4">Fuentes</Link></li>
               <li><Link href="/?categoria=Mock ups" className="hover:underline underline-offset-4">Mockups</Link></li>
-              <li><Link href="/?categoria=Vectores" className="hover:underline underline-offset-4">Vectores</Link></li>
+              <li><Link href="/?categoria=Ilustraciones" className="hover:underline underline-offset-4">Vectores</Link></li>
               <li><Link href="/?categoria=3D" className="hover:underline underline-offset-4">Modelos 3D</Link></li>
               <li><Link href="/?categoria=Fotos" className="hover:underline underline-offset-4">Imágenes</Link></li>
             </ul>
@@ -94,7 +94,7 @@ export function Footer() {
           <form className="flex flex-col gap-3" onSubmit={(e) => e.preventDefault()}>
             <textarea 
               placeholder="Escribe tu mensaje aquí..." 
-              className="w-full p-4 bg-transparent border border-redi-vino/20 dark:border-redi-beige/20 rounded-2xl focus:ring-2 focus:ring-redi-red outline-none transition-all font-medium text-sm text-redi-vino dark:text-redi-beige placeholder:text-redi-vino/50 dark:placeholder:text-redi-beige/50 min-h-[100px] resize-y"
+              className="w-full p-4 bg-transparent border border-redi-vino/20 dark:border-redi-beige/35 rounded-2xl focus:ring-2 focus:ring-redi-red outline-none transition-all font-medium text-sm text-redi-vino dark:text-redi-beige placeholder:text-redi-vino/50 dark:placeholder:text-redi-beige/50 min-h-[100px] resize-y"
               required
             ></textarea>
             <button 
@@ -109,7 +109,7 @@ export function Footer() {
       </div>
 
       {/* Bottom Legal Bar */}
-      <div className="max-w-7xl mx-auto border-t border-redi-vino/10 dark:border-redi-beige/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
+      <div className="max-w-7xl mx-auto border-t border-redi-vino/10 dark:border-redi-beige/25 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
         <div className="text-xs font-medium opacity-70">
           © {new Date().getFullYear()} Redi La Metro. Todos los derechos reservados.
         </div>
