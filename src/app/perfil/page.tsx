@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Download, User, Clock, Package, Box, Camera, Key } from "lucide-react";
+import { ArrowLeft, Download, User, Clock, Package, Box, Camera, Key, Bookmark } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -14,6 +14,16 @@ export default function PerfilPage() {
   const [descargas, setDescargas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [savedResources, setSavedResources] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<"descargas" | "guardados">("descargas");
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  const scrollToGrid = (tab: "descargas" | "guardados") => {
+    setActiveTab(tab);
+    setTimeout(() => {
+      gridRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -126,6 +136,28 @@ export default function PerfilPage() {
 
         setDescargas(uniqueResources);
       }
+
+      // Fetch saved resources from localStorage
+      if (typeof window !== "undefined") {
+        const savedIds = JSON.parse(localStorage.getItem("saved_resources") || "[]");
+        if (savedIds.length > 0) {
+          try {
+            const { data: savedData } = await supabase
+              .from('recursos')
+              .select('*')
+              .in('id', savedIds);
+            
+            if (savedData) {
+              setSavedResources(savedData);
+            }
+          } catch (err) {
+            console.error("Error fetching saved resources:", err);
+          }
+        } else {
+          setSavedResources([]);
+        }
+      }
+
       setLoading(false);
     };
 
@@ -196,19 +228,35 @@ export default function PerfilPage() {
                 <span className="px-4 py-1.5 bg-white/50 dark:bg-redi-vino/20 border border-redi-vino/10 dark:border-redi-beige/10 rounded-full text-[10px] font-bold text-redi-vino/50 dark:text-redi-beige/50 uppercase tracking-widest flex items-center gap-2">
                   <Clock className="w-3 h-3" /> Miembro desde {new Date(user.created_at).getFullYear()}
                 </span>
-                <span className="px-4 py-1.5 bg-white/50 dark:bg-redi-vino/20 border border-redi-vino/10 dark:border-redi-beige/10 rounded-full text-[10px] font-bold text-redi-vino/50 dark:text-redi-beige/50 uppercase tracking-widest flex items-center gap-2">
+                <button 
+                  onClick={() => scrollToGrid("descargas")}
+                  className="px-4 py-1.5 bg-white/50 dark:bg-redi-vino/20 border border-redi-vino/10 dark:border-redi-beige/10 rounded-full text-[10px] font-bold text-redi-vino/55 dark:text-redi-beige/55 uppercase tracking-widest flex items-center gap-2 hover:bg-redi-vino/10 hover:text-redi-vino dark:hover:bg-redi-beige/10 dark:hover:text-redi-beige transition-all cursor-pointer"
+                >
                   <Box className="w-3 h-3" /> {descargas.length} Descargas
-                </span>
+                </button>
+                <button 
+                  onClick={() => scrollToGrid("guardados")}
+                  className="px-4 py-1.5 bg-white/50 dark:bg-redi-vino/20 border border-redi-vino/10 dark:border-redi-beige/10 rounded-full text-[10px] font-bold text-redi-vino/55 dark:text-redi-beige/55 uppercase tracking-widest flex items-center gap-2 hover:bg-redi-vino/10 hover:text-redi-vino dark:hover:bg-redi-beige/10 dark:hover:text-redi-beige transition-all cursor-pointer"
+                >
+                  <Bookmark className="w-3 h-3 text-redi-red" /> {savedResources.length} Guardados
+                </button>
               </div>
 
-              {/* Botón Cambiar Contraseña */}
-              <div className="flex justify-center md:justify-start">
+              {/* Botones de Acción */}
+              <div className="flex flex-wrap justify-center md:justify-start gap-3">
                 <button 
                   onClick={handleResetPassword}
                   className="px-5 py-2 bg-transparent border border-redi-vino/20 dark:border-redi-beige/20 text-redi-vino dark:text-redi-beige text-[10px] font-bold rounded-full hover:bg-redi-vino/5 dark:hover:bg-redi-beige/5 transition-all tracking-widest uppercase flex items-center gap-2"
                 >
-                  <Key className="w-3 h-3" />
+                  <Key className="w-3 h-3 text-redi-red" />
                   Cambiar Contraseña
+                </button>
+                <button 
+                  onClick={() => scrollToGrid("guardados")}
+                  className="px-5 py-2 bg-transparent border border-redi-vino/20 dark:border-redi-beige/20 text-redi-vino dark:text-redi-beige text-[10px] font-bold rounded-full hover:bg-redi-vino/5 dark:hover:bg-redi-beige/5 transition-all tracking-widest uppercase flex items-center gap-2"
+                >
+                  <Bookmark className="w-3.5 h-3.5 text-redi-red" />
+                  Ver Recursos Guardados
                 </button>
               </div>
             </div>
@@ -222,46 +270,106 @@ export default function PerfilPage() {
           </button>
         </div>
 
-        {/* Downloads History */}
-        <div>
-          <h2 className="text-xl font-bold mb-8 px-2 lowercase tracking-tight text-redi-vino dark:text-redi-beige">Mi Historial de Descargas</h2>
-          
-          {descargas.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {descargas.map((item) => (
-                <div key={item.id} className="bg-white/50 dark:bg-redi-vino/40 rounded-[32px] p-4 border border-redi-vino/10 dark:border-redi-beige/10 shadow-sm group hover:shadow-md transition-all">
-                  <div className="relative aspect-square rounded-[24px] overflow-hidden mb-4 bg-redi-vino/5 dark:bg-redi-beige/5">
-                    <Image
-                      src={item.recursos.imagen_url || "https://gaevhcrlpvophttdwnmh.supabase.co/storage/v1/object/public/recursos/placeholder.jpg"}
-                      alt={item.recursos.titulo}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
+         {/* Tabs Section */}
+        <div ref={gridRef} className="scroll-mt-24">
+          <div className="flex border-b border-redi-vino/10 dark:border-redi-beige/10 mb-8 gap-6 px-2">
+            <button
+              onClick={() => setActiveTab("descargas")}
+              className={`pb-4 text-xs font-black uppercase tracking-wider border-b-2 transition-all ${
+                activeTab === "descargas"
+                  ? "border-redi-red text-redi-red font-black"
+                  : "border-transparent text-redi-vino/40 dark:text-redi-beige/40 hover:text-redi-vino/70 dark:hover:text-redi-beige/70"
+              }`}
+            >
+              Mi Historial de Descargas ({descargas.length})
+            </button>
+            <button
+              onClick={() => setActiveTab("guardados")}
+              className={`pb-4 text-xs font-black uppercase tracking-wider border-b-2 transition-all ${
+                activeTab === "guardados"
+                  ? "border-redi-red text-redi-red font-black"
+                  : "border-transparent text-redi-vino/40 dark:text-redi-beige/40 hover:text-redi-vino/70 dark:hover:text-redi-beige/70"
+              }`}
+            >
+              Mis Recursos Guardados ({savedResources.length})
+            </button>
+          </div>
+
+          {activeTab === "descargas" ? (
+            descargas.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {descargas.map((item) => (
+                  <div key={item.id} className="bg-white/50 dark:bg-redi-vino/40 rounded-[32px] p-4 border border-redi-vino/10 dark:border-redi-beige/10 shadow-sm group hover:shadow-md transition-all">
+                    <div className="relative aspect-square rounded-[24px] overflow-hidden mb-4 bg-redi-vino/5 dark:bg-redi-beige/5">
+                      <Image
+                        src={item.recursos?.imagen_url || "https://gaevhcrlpvophttdwnmh.supabase.co/storage/v1/object/public/recursos/placeholder.jpg"}
+                        alt={item.recursos?.titulo || 'Recurso'}
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    </div>
+                    <div className="px-2 pb-2">
+                      <h3 className="font-bold text-sm mb-1 truncate text-redi-vino dark:text-redi-beige">{item.recursos?.titulo || 'Recurso'}</h3>
+                      <p className="text-[10px] text-redi-vino/40 dark:text-redi-beige/40 font-bold uppercase tracking-widest mb-4">
+                        {new Date(item.creado_en || item.created_at).toLocaleDateString()}
+                      </p>
+                      <Link 
+                        href={`/recursos/${item.recursos?.id || item.recurso_id}`}
+                        className="w-full h-10 bg-redi-vino/5 dark:bg-redi-beige/5 text-redi-vino dark:text-redi-beige text-[10px] font-black rounded-xl flex items-center justify-center gap-2 hover:bg-redi-vino dark:hover:bg-redi-beige hover:text-redi-beige dark:hover:text-redi-vino transition-all uppercase tracking-widest"
+                      >
+                        <Download className="w-3 h-3" />
+                        Volver a bajar
+                      </Link>
+                    </div>
                   </div>
-                  <div className="px-2 pb-2">
-                    <h3 className="font-bold text-sm mb-1 truncate text-redi-vino dark:text-redi-beige">{item.recursos?.titulo || 'Recurso'}</h3>
-                    <p className="text-[10px] text-redi-vino/40 dark:text-redi-beige/40 font-bold uppercase tracking-widest mb-4">
-                      {new Date(item.creado_en || item.created_at).toLocaleDateString()}
-                    </p>
-                    <Link 
-                      href={`/recursos/${item.recursos.id}`}
-                      className="w-full h-10 bg-redi-vino/5 dark:bg-redi-beige/5 text-redi-vino dark:text-redi-beige text-[10px] font-black rounded-xl flex items-center justify-center gap-2 hover:bg-redi-vino dark:hover:bg-redi-beige hover:text-redi-beige dark:hover:text-redi-vino transition-all uppercase tracking-widest"
-                    >
-                      <Download className="w-3 h-3" />
-                      Volver a bajar
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20 bg-white/50 dark:bg-redi-vino/40 rounded-[40px] border border-dashed border-redi-vino/20 dark:border-redi-beige/20">
+                <Package className="w-12 h-12 text-redi-vino/20 dark:text-redi-beige/20 mx-auto mb-4" />
+                <p className="text-redi-vino/50 dark:text-redi-beige/50 text-sm font-medium">Aún no has descargado ningún recurso.</p>
+                <Link href="/" className="text-redi-vino dark:text-redi-beige font-bold text-sm mt-4 inline-block hover:text-redi-red transition-colors">
+                  Explorar catálogo
+                </Link>
+              </div>
+            )
           ) : (
-            <div className="text-center py-20 bg-white/50 dark:bg-redi-vino/40 rounded-[40px] border border-dashed border-redi-vino/20 dark:border-redi-beige/20">
-              <Package className="w-12 h-12 text-redi-vino/20 dark:text-redi-beige/20 mx-auto mb-4" />
-              <p className="text-redi-vino/50 dark:text-redi-beige/50 text-sm font-medium">Aún no has descargado ningún recurso.</p>
-              <Link href="/" className="text-redi-vino dark:text-redi-beige font-bold text-sm mt-4 inline-block hover:text-redi-red transition-colors">
-                Explorar catálogo
-              </Link>
-            </div>
+            savedResources.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {savedResources.map((item) => (
+                  <div key={item.id} className="bg-white/50 dark:bg-redi-vino/40 rounded-[32px] p-4 border border-redi-vino/10 dark:border-redi-beige/10 shadow-sm group hover:shadow-md transition-all">
+                    <div className="relative aspect-square rounded-[24px] overflow-hidden mb-4 bg-redi-vino/5 dark:bg-redi-beige/5">
+                      <Image
+                        src={item.imagen_url || "https://gaevhcrlpvophttdwnmh.supabase.co/storage/v1/object/public/recursos/placeholder.jpg"}
+                        alt={item.titulo || 'Recurso'}
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    </div>
+                    <div className="px-2 pb-2">
+                      <h3 className="font-bold text-sm mb-1 truncate text-redi-vino dark:text-redi-beige">{item.titulo || 'Recurso'}</h3>
+                      <p className="text-[10px] text-redi-vino/40 dark:text-redi-beige/40 font-bold uppercase tracking-widest mb-4">
+                        recurso guardado
+                      </p>
+                      <Link 
+                        href={`/recursos/${item.id}`}
+                        className="w-full h-10 bg-redi-vino/5 dark:bg-redi-beige/5 text-redi-vino dark:text-redi-beige text-[10px] font-black rounded-xl flex items-center justify-center gap-2 hover:bg-redi-vino dark:hover:bg-redi-beige hover:text-redi-beige dark:hover:text-redi-vino transition-all uppercase tracking-widest"
+                      >
+                        Ver recurso
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20 bg-white/50 dark:bg-redi-vino/40 rounded-[40px] border border-dashed border-redi-vino/20 dark:border-redi-beige/20">
+                <Bookmark className="w-12 h-12 text-redi-vino/20 dark:text-redi-beige/20 mx-auto mb-4" />
+                <p className="text-redi-vino/50 dark:text-redi-beige/50 text-sm font-medium">Aún no has guardado ningún recurso.</p>
+                <Link href="/" className="text-redi-vino dark:text-redi-beige font-bold text-sm mt-4 inline-block hover:text-redi-red transition-colors">
+                  Explorar catálogo
+                </Link>
+              </div>
+            )
           )}
         </div>
       </div>

@@ -27,9 +27,16 @@ interface FontPreviewProps {
 }
 
 export function FontPreview({ fontFamily, fontUrl, designer, downloadUrl }: FontPreviewProps) {
-  const [text, setText] = useState("ESCRIBE AQUÍ PARA PREVISUALIZAR");
+  const isPiramidal = fontFamily.toLowerCase() === 'piramidal';
+  const [text, setText] = useState(
+    isPiramidal ? "ESCRIBE AQUÍ PARA PREVISUALIZAR" : "Escribe aquí para previsualizar"
+  );
   const [size, setSize] = useState(48);
   const [isFontLoaded, setIsFontLoaded] = useState(false);
+
+  useEffect(() => {
+    setText(isPiramidal ? "ESCRIBE AQUÍ PARA PREVISUALIZAR" : "Escribe aquí para previsualizar");
+  }, [fontFamily, isPiramidal]);
 
   // Cargar la fuente dinámicamente si hay URL
   useEffect(() => {
@@ -44,38 +51,38 @@ export function FontPreview({ fontFamily, fontUrl, designer, downloadUrl }: Font
   }, [fontUrl, fontFamily]);
 
   return (
-    <div className="w-full bg-white/50 dark:bg-redi-vino/40 border border-redi-vino/10 dark:border-redi-beige/25 rounded-[40px] p-8 md:p-12 shadow-sm transition-colors">
+    <div className="w-full bg-white/50 border border-redi-vino/10 rounded-[40px] p-8 md:p-12 shadow-sm transition-colors">
       {/* Header del Previsualizador */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
         <div>
           <h2 
-            className="text-5xl md:text-7xl font-bold tracking-tighter text-redi-vino dark:text-redi-beige"
+            className="text-5xl md:text-7xl font-bold tracking-tighter text-redi-vino"
             style={{ fontFamily: isFontLoaded ? `"${fontFamily}"` : 'inherit' }}
           >
             {fontFamily.toUpperCase()}
           </h2>
           {designer && (
-            <p className="text-redi-vino/40 dark:text-redi-beige/40 mt-4 text-sm font-medium uppercase tracking-widest">
-              Diseñada por <span className="text-redi-vino dark:text-redi-beige">{designer}</span>
+            <p className="text-redi-vino/40 mt-4 text-sm font-medium uppercase tracking-widest">
+              Diseñada por <span className="text-redi-vino">{designer}</span>
             </p>
           )}
         </div>
       </div>
 
       {/* Controles */}
-      <div className="flex flex-col md:flex-row items-center gap-6 mb-12 bg-white/50 dark:bg-redi-vino/20 p-6 rounded-[32px] border border-redi-vino/10 dark:border-redi-beige/25">
+      <div className="flex flex-col md:flex-row items-center gap-6 mb-12 bg-white/50 p-6 rounded-[32px] border border-redi-vino/10">
         <div className="flex-1 w-full">
           <input
             type="text"
             value={text}
-            onChange={(e) => setText(e.target.value.toUpperCase())}
+            onChange={(e) => setText(isPiramidal ? e.target.value.toUpperCase() : e.target.value)}
             placeholder="Prueba la fuente aquí..."
-            className="w-full bg-white/50 dark:bg-redi-vino/40 border border-redi-vino/10 dark:border-redi-beige/25 rounded-2xl px-6 py-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-redi-red transition-all text-redi-vino dark:text-redi-beige"
+            className="w-full bg-white/50 border border-redi-vino/10 rounded-2xl px-6 py-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-redi-red transition-all text-redi-vino"
           />
         </div>
         
         <div className="flex items-center gap-4 w-full md:w-auto min-w-[250px]">
-          <span className="text-[10px] font-bold text-redi-vino/40 dark:text-redi-beige/40 uppercase tracking-widest min-w-[40px]">
+          <span className="text-[10px] font-bold text-redi-vino/40 uppercase tracking-widest min-w-[40px]">
             {size}px
           </span>
           <input
@@ -84,7 +91,7 @@ export function FontPreview({ fontFamily, fontUrl, designer, downloadUrl }: Font
             max={160}
             value={size}
             onChange={(e) => setSize(Number(e.target.value))}
-            className="flex-1 h-1.5 bg-redi-vino/20 dark:bg-redi-beige/20 rounded-lg appearance-none cursor-pointer accent-redi-red"
+            className="flex-1 h-1.5 bg-redi-vino/20 rounded-lg appearance-none cursor-pointer accent-redi-red"
           />
         </div>
       </div>
@@ -92,17 +99,17 @@ export function FontPreview({ fontFamily, fontUrl, designer, downloadUrl }: Font
       {/* Lista de Variantes */}
       <div className="space-y-12">
         {defaultVariants.map((variant, i) => (
-          <div key={i} className="border-t border-redi-vino/10 dark:border-redi-beige/25 pt-10">
+          <div key={i} className="border-t border-redi-vino/10 pt-10">
             <div className="flex items-center justify-between mb-6">
-              <span className="text-[10px] font-bold text-redi-vino/50 dark:text-redi-beige/50 uppercase tracking-[0.3em]">
+              <span className="text-[10px] font-bold text-redi-vino/50 uppercase tracking-[0.3em]">
                 {variant.label}
               </span>
-              <span className="text-[9px] text-redi-vino/30 dark:text-redi-beige/30 font-bold uppercase">
+              <span className="text-[9px] text-redi-vino/30 font-bold uppercase">
                 Preview Mode
               </span>
             </div>
             <p
-              className="text-redi-vino dark:text-redi-beige transition-all leading-tight break-words"
+              className="text-redi-vino transition-all leading-tight break-words"
               style={{
                 fontFamily: isFontLoaded ? `"${fontFamily}"` : 'inherit',
                 fontWeight: variant.fontWeight,
@@ -110,7 +117,7 @@ export function FontPreview({ fontFamily, fontUrl, designer, downloadUrl }: Font
                 fontSize: `${size}px`,
               }}
             >
-              {text || "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG"}
+              {text || (isPiramidal ? "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG" : "The quick brown fox jumps over the lazy dog")}
             </p>
           </div>
         ))}

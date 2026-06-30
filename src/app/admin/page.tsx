@@ -13,6 +13,7 @@ export default function AdminPage() {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [categorias, setCategorias] = useState<any[]>([]);
+  const [recursosList, setRecursosList] = useState<any[]>([]);
 
   // Form State
   const [titulo, setTitulo] = useState("");
@@ -34,6 +35,13 @@ export default function AdminPage() {
       // Fetch categorias para el dropdown
       const { data: catData } = await supabase.from('categorias').select('*');
       if (catData) setCategorias(catData);
+
+      // Fetch recursos para la lista de administración
+      const { data: recData } = await supabase
+        .from('recursos')
+        .select('*, categorias(nombre)')
+        .order('created_at', { ascending: false });
+      if (recData) setRecursosList(recData);
       
       setLoading(false);
     };
@@ -51,16 +59,28 @@ export default function AdminPage() {
 
       // 1. Subir Imagen al bucket 'recursos' si existe
       if (imagenFile) {
-        const fileExt = imagenFile.name.split('.').pop();
-        const fileName = `img-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-        const { error: uploadError } = await supabase.storage
-          .from('recursos')
-          .upload(fileName, imagenFile);
-        
-        if (uploadError) throw new Error("Error al subir la imagen. Verifica que el bucket 'recursos' exista y sea público.");
+        try {
+          const fileExt = imagenFile.name.split('.').pop();
+          const fileName = `img-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+          const { error: uploadError } = await supabase.storage
+            .from('recursos')
+            .upload(fileName, imagenFile);
+          
+          if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage.from('recursos').getPublicUrl(fileName);
-        imagen_url = publicUrl;
+          const { data: { publicUrl } } = supabase.storage.from('recursos').getPublicUrl(fileName);
+          imagen_url = publicUrl;
+        } catch (uploadError) {
+          console.warn("Storage upload failed, falling back to Base64:", uploadError);
+          // Convert image file to Base64 data URL
+          const base64 = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(imagenFile);
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = (err) => reject(err);
+          });
+          imagen_url = base64;
+        }
       }
 
       // 2. Usar el link de descarga directo
@@ -74,8 +94,7 @@ export default function AdminPage() {
         formato,
         categoria_id: categoriaId || null,
         imagen_url,
-        url_archivo, // Usamos url_archivo (también soportado como archivo_url dependiendo de la DB)
-        archivo_url: url_archivo // Guardamos en ambos por retrocompatibilidad con las capturas que enviaste
+        archivo_url: url_archivo // Solo enviamos archivo_url ya que url_archivo no existe en la BD
       });
 
       if (insertError) throw insertError;
@@ -93,6 +112,13 @@ export default function AdminPage() {
       // Resetear file inputs
       (document.getElementById('imagenInput') as HTMLInputElement).value = '';
 
+      // Re-fetch list to include the newly added resource
+      const { data: recData } = await supabase
+        .from('recursos')
+        .select('*, categorias(nombre)')
+        .order('created_at', { ascending: false });
+      if (recData) setRecursosList(recData);
+
       setTimeout(() => setSuccess(false), 5000);
 
     } catch (err: any) {
@@ -100,6 +126,34 @@ export default function AdminPage() {
       alert(err.message || "Ocurrió un error al guardar el recurso.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDeleteRecurso = async (id: string, titulo: string) => {
+    if (!window.confirm(`¿Estás seguro de que deseas eliminar el recurso "${titulo}"?`)) {
+      return;
+    }
+    
+    try {
+      const { data, error } = await supabase
+        .from('recursos')
+        .delete()
+        .eq('id', id)
+        .select();
+      
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        alert("Aviso: El recurso no se pudo eliminar. Esto se debe a que las políticas de seguridad (RLS) en tu panel de Supabase no tienen habilitada una política para permitir la acción 'DELETE' desde la web. Puedes borrar el recurso directamente en tu tabla de Supabase o configurar una política que permita eliminar registros.");
+        return;
+      }
+      
+      // Update local state list
+      setRecursosList(recursosList.filter(rec => rec.id !== id));
+      alert("¡Recurso eliminado con éxito!");
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Error al eliminar el recurso.");
     }
   };
 
@@ -143,7 +197,7 @@ export default function AdminPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-8 bg-white/50 dark:bg-redi-vino/40 p-8 md:p-12 rounded-[40px] border border-redi-vino/10 dark:border-redi-beige/10 shadow-sm">
+        <form onSubmit={handleSubmit} className="space-y-8 bg-redi-beige dark:bg-redi-vino/40 p-8 md:p-12 rounded-[40px] border border-redi-vino/15 dark:border-redi-beige/20 shadow-sm">
           
           <div className="space-y-1.5">
             <label className="text-[10px] font-bold text-redi-vino dark:text-redi-beige uppercase tracking-widest ml-1 block">Título del Recurso</label>
@@ -258,6 +312,44 @@ export default function AdminPage() {
           </div>
 
         </form>
+
+        {/* Resources List Section */}
+        <div className="mt-16 bg-white/50 dark:bg-redi-vino/40 p-8 md:p-12 rounded-[40px] border border-redi-vino/15 dark:border-redi-beige/20 shadow-sm">
+          <h2 className="text-2xl font-bold tracking-tight mb-8">Administrar Recursos</h2>
+          
+          <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 no-scrollbar">
+            {recursosList.length > 0 ? (
+              recursosList.map((rec) => (
+                <div key={rec.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-redi-beige/50 dark:bg-redi-vino/20 rounded-2xl border border-redi-vino/10 dark:border-redi-beige/10 gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-redi-vino/5 dark:bg-redi-beige/5 shrink-0">
+                      <img 
+                        src={rec.imagen_url || "https://gaevhcrlpvophttdwnmh.supabase.co/storage/v1/object/public/recursos/placeholder.jpg"} 
+                        alt={rec.titulo} 
+                        className="object-cover w-full h-full"
+                      />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-sm text-redi-vino dark:text-redi-beige">{rec.titulo}</h3>
+                      <p className="text-[10px] text-redi-vino/50 dark:text-redi-beige/50 font-bold uppercase tracking-wider">
+                        {rec.categorias?.nombre || "Sin Categoría"} • {rec.formato || "Sin Formato"}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <button
+                    onClick={() => handleDeleteRecurso(rec.id, rec.titulo)}
+                    className="px-5 py-2 border border-redi-red/20 text-redi-red hover:bg-redi-red/10 text-[10px] font-bold rounded-full transition-all uppercase tracking-widest self-end sm:self-center"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              ))
+            ) : (
+              <p className="text-center py-8 text-redi-vino/50 dark:text-redi-beige/50 text-sm font-medium">No se encontraron recursos subidos.</p>
+            )}
+          </div>
+        </div>
       </div>
     </main>
   );

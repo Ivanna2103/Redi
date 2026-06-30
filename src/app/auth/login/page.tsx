@@ -24,6 +24,21 @@ export default function LoginPage() {
     setLoading(false);
   };
 
+  const handleGoogleLogin = async () => {
+    setError(null);
+    try {
+      const { error: authError } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/`,
+        },
+      });
+      if (authError) throw authError;
+    } catch (err: any) {
+      setError(err.message || "Error al iniciar sesión con Google");
+    }
+  };
+
   return (
     <main className="h-screen w-full bg-redi-beige dark:bg-redi-vino flex items-center justify-center p-0 md:p-6 lg:p-8 overflow-hidden font-sans transition-colors duration-300">
       <div className="w-full max-w-[1200px] h-full max-h-[850px] bg-redi-beige dark:bg-redi-vino rounded-none md:rounded-[40px] shadow-2xl shadow-redi-red/10 flex overflow-hidden border border-redi-vino/20 dark:border-redi-beige/20">
@@ -31,9 +46,9 @@ export default function LoginPage() {
         {/* Lado Izquierdo: Formulario Totalmente Estático */}
         <div className="w-full lg:w-[45%] p-4 sm:p-6 lg:p-8 flex flex-col justify-center overflow-y-auto no-scrollbar bg-transparent">
           <div className="flex flex-col items-center">
-            <div className="mb-2 flex flex-col items-center mt-0">
+            <div className="mb-4 flex flex-col items-center mt-0 gap-1">
               <div 
-                className="w-[300px] h-[115px] md:w-[420px] md:h-[160px] bg-redi-vino dark:bg-redi-beige"
+                className="w-[80px] h-[31px] bg-redi-vino dark:bg-redi-beige"
                 style={{
                   maskImage: 'url(/redi-logo.svg)',
                   WebkitMaskImage: 'url(/redi-logo.svg)',
@@ -41,12 +56,12 @@ export default function LoginPage() {
                   WebkitMaskSize: 'contain',
                   maskRepeat: 'no-repeat',
                   WebkitMaskRepeat: 'no-repeat',
-                  maskPosition: 'bottom',
-                  WebkitMaskPosition: 'bottom'
+                  maskPosition: 'center',
+                  WebkitMaskPosition: 'center'
                 }}
                 aria-label="Redi Logo"
               />
-              <div className="-mt-4 md:-mt-10 opacity-40 dark:invert relative z-10">
+              <div className="opacity-40 dark:invert relative z-10 mt-1">
                 <Image src="https://gaevhcrlpvophttdwnmh.supabase.co/storage/v1/object/public/recursos/LA-METRO.png" alt="La Metro Logo" width={80} height={25} className="object-contain grayscale" />
               </div>
             </div>
@@ -90,7 +105,14 @@ export default function LoginPage() {
                   <input type="checkbox" className="rounded border-redi-vino/30 dark:border-redi-beige/30 bg-transparent text-redi-red focus:ring-redi-red" />
                   Recordarme
                 </label>
-                <button type="button" className="text-[10px] text-redi-vino/50 dark:text-redi-beige/50 font-bold hover:text-redi-red transition-colors">¿Olvidaste tu contraseña?</button>
+                <Link
+                  href="/auth/reset-password"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[10px] text-redi-vino/50 dark:text-redi-beige/50 font-bold hover:text-redi-red transition-colors"
+                >
+                  ¿Olvidaste tu contraseña?
+                </Link>
               </div>
 
               <button
@@ -109,11 +131,12 @@ export default function LoginPage() {
 
               <button
                 type="button"
+                onClick={handleGoogleLogin}
                 className="w-full h-10 bg-transparent border border-redi-vino/20 dark:border-redi-beige/20 text-redi-vino dark:text-redi-beige rounded-xl font-bold text-[11px] flex items-center justify-center gap-3 hover:bg-redi-vino/5 dark:hover:bg-redi-beige/5 transition-all shadow-sm"
               >
                 <div className="w-3.5 h-3.5 relative">
                    <Image src="https://www.google.com/favicon.ico" alt="Google" fill />
-                </div>
+                 </div>
                 Google
               </button>
             </form>

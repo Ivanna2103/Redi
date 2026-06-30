@@ -3,23 +3,29 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Instagram, Facebook } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 export function Footer() {
+  const pathname = usePathname();
+  const isHome = pathname === '/';
+  const isAuth = pathname.startsWith('/auth');
+
+  if (isAuth) return null;
+
   return (
-    <footer className="w-full bg-redi-beige dark:bg-redi-vino text-redi-vino dark:text-redi-beige pt-16 pb-8 px-6 md:px-12 mt-auto border-t border-redi-vino/10 dark:border-redi-beige/25 transition-colors duration-300">
+    <footer className={`w-full bg-redi-beige dark:bg-redi-vino text-redi-vino dark:text-redi-beige pt-16 pb-8 px-6 md:px-12 mt-auto border-t border-redi-vino/10 dark:border-redi-beige/25 transition-colors duration-300 ${isHome ? 'md:ml-64 md:w-[calc(100%-16rem)]' : ''}`}>
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between gap-12 mb-16">
         
         {/* Logo Columna y Social */}
-        <div className="lg:w-1/4 flex flex-col gap-8">
-          <div className="flex flex-col gap-2">
+        <div className="lg:w-1/4 flex flex-col gap-6 items-start">
+          <div className="flex flex-col gap-2 items-start">
             <Link href="/">
               <div 
-                className="w-[190px] h-[110px] bg-redi-vino dark:bg-redi-beige -ml-4"
+                className="w-[80px] h-[31px] bg-redi-vino dark:bg-redi-beige"
                 style={{
                   maskImage: 'url(/redi-logo.svg)',
                   WebkitMaskImage: 'url(/redi-logo.svg)',
                   maskSize: 'contain',
-                  WebkitMaskSize: 'contain',
                   maskRepeat: 'no-repeat',
                   WebkitMaskRepeat: 'no-repeat',
                   maskPosition: 'left center',
@@ -28,14 +34,13 @@ export function Footer() {
                 aria-label="Redi Logo"
               />
             </Link>
-            <div className="-mt-8 ml-2">
+            <div className="mt-1">
               <div 
-                className="w-[100px] h-[35px] bg-redi-vino dark:bg-redi-beige opacity-80"
+                className="w-[95px] h-[32px] bg-redi-vino dark:bg-redi-beige opacity-80"
                 style={{
                   maskImage: 'url(https://gaevhcrlpvophttdwnmh.supabase.co/storage/v1/object/public/recursos/LA-METRO.png)',
                   WebkitMaskImage: 'url(https://gaevhcrlpvophttdwnmh.supabase.co/storage/v1/object/public/recursos/LA-METRO.png)',
                   maskSize: 'contain',
-                  WebkitMaskSize: 'contain',
                   maskRepeat: 'no-repeat',
                   WebkitMaskRepeat: 'no-repeat',
                   maskPosition: 'left center',
@@ -63,28 +68,25 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Grouped Links (Recursos & Plataforma) */}
-        <div className="lg:w-1/3 flex justify-start lg:justify-center gap-16 lg:gap-20">
-          {/* Recursos Columna */}
-          <div className="space-y-5">
-            <h4 className="text-sm font-bold">Recursos</h4>
-            <ul className="space-y-4 text-[13px] font-medium opacity-80">
-              <li><Link href="/?categoria=Fuentes" className="hover:underline underline-offset-4">Fuentes</Link></li>
-              <li><Link href="/?categoria=Mock ups" className="hover:underline underline-offset-4">Mockups</Link></li>
-              <li><Link href="/?categoria=Ilustraciones" className="hover:underline underline-offset-4">Vectores</Link></li>
-              <li><Link href="/?categoria=3D" className="hover:underline underline-offset-4">Modelos 3D</Link></li>
-              <li><Link href="/?categoria=Fotos" className="hover:underline underline-offset-4">Imágenes</Link></li>
-            </ul>
-          </div>
+        {/* Recursos Columna */}
+        <div className="lg:w-1/6 space-y-5">
+          <h4 className="text-sm font-bold">Recursos</h4>
+          <ul className="space-y-4 text-[13px] font-medium opacity-80">
+            <li><Link href="/?categoria=Fuentes" className="hover:underline underline-offset-4">Fuentes</Link></li>
+            <li><Link href="/?categoria=Mock ups" className="hover:underline underline-offset-4">Mockups</Link></li>
+            <li><Link href="/?categoria=Ilustraciones" className="hover:underline underline-offset-4">Vectores</Link></li>
+            <li><Link href="/?categoria=3D" className="hover:underline underline-offset-4">Modelos 3D</Link></li>
+            <li><Link href="/?categoria=Fotos" className="hover:underline underline-offset-4">Imágenes</Link></li>
+          </ul>
+        </div>
 
-          {/* Redi Columna */}
-          <div className="space-y-5">
-            <h4 className="text-sm font-bold">Plataforma</h4>
-            <ul className="space-y-4 text-[13px] font-medium opacity-80">
-              <li><Link href="/perfil" className="hover:underline underline-offset-4">Mi Perfil</Link></li>
-              <li><Link href="/admin" className="hover:underline underline-offset-4">Subir un recurso</Link></li>
-            </ul>
-          </div>
+        {/* Plataforma Columna */}
+        <div className="lg:w-1/6 space-y-5">
+          <h4 className="text-sm font-bold">Plataforma</h4>
+          <ul className="space-y-4 text-[13px] font-medium opacity-80">
+            <li><Link href="/perfil" className="hover:underline underline-offset-4">Mi Perfil</Link></li>
+            <li><Link href="/admin" className="hover:underline underline-offset-4">Subir un recurso</Link></li>
+          </ul>
         </div>
 
         {/* Message Box */}
@@ -115,6 +117,9 @@ export function Footer() {
         </div>
         
         <div className="flex flex-wrap justify-center gap-6 text-xs font-medium opacity-80">
+          <Link href="/privacidad" className="hover:underline underline-offset-4">
+            Política de privacidad
+          </Link>
           <Link href="/terminos" className="hover:underline underline-offset-4">
             Términos y condiciones
           </Link>
