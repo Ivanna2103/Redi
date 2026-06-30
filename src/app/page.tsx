@@ -31,6 +31,7 @@ function HomeContent() {
   const router = useRouter();
   const [busqueda, setBusqueda] = useState("");
   const [subcategoriaSeleccionada, setSubcategoriaSeleccionada] = useState<string | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const queryCategoria = searchParams.get('categoria');
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<string | null>(
     queryCategoria
@@ -159,16 +160,145 @@ function HomeContent() {
 
   return (
     <main className="min-h-screen bg-redi-beige dark:bg-redi-vino text-redi-vino dark:text-redi-beige font-sans transition-colors duration-300">
+      {/* Mobile Drawer Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/40 z-[100] transition-opacity md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Mobile Drawer Menu */}
+      <div className={`fixed top-0 left-0 h-full w-64 bg-redi-beige border-r border-redi-vino/10 p-6 flex flex-col gap-2 z-[101] transform transition-transform duration-300 ease-in-out md:hidden ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        {/* Close Button Only */}
+        <div className="flex items-center justify-end mb-6">
+          <button 
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="p-1 text-redi-vino/60 hover:text-redi-red transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Categories (Drawer) */}
+        <div className="overflow-y-auto no-scrollbar flex-1">
+          <h3 className="text-[10px] font-black text-redi-vino/30 uppercase tracking-[0.2em] mb-4 pl-4">Categorías</h3>
+          <ul className="space-y-1">
+            <li>
+              <button
+                onClick={() => {
+                  handleSelectCategoria(null);
+                  setIsMobileMenuOpen(false);
+                }}
+                className={`w-full text-left px-4 py-2.5 rounded-2xl text-[13px] font-bold transition-all ${
+                  categoriaSeleccionada === null
+                    ? "bg-redi-red text-white shadow-md shadow-redi-red/10"
+                    : "text-redi-vino/70 hover:bg-redi-red/5 hover:text-redi-red"
+                }`}
+              >
+                Todas las categorías
+              </button>
+            </li>
+            {categorias.map((cat) => {
+              const isSelected = categoriaSeleccionada && (
+                categoriaSeleccionada.toLowerCase() === cat.nombre?.toLowerCase() ||
+                categoriaSeleccionada.toLowerCase() === cat.id?.toLowerCase() ||
+                categoriaSeleccionada.toLowerCase() === cat.slug?.toLowerCase()
+              );
+              return (
+                <li key={cat.id}>
+                  <button
+                    onClick={() => {
+                      handleSelectCategoria(cat.id);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className={`w-full text-left px-4 py-2.5 rounded-2xl text-[13px] font-bold transition-all ${
+                      isSelected
+                        ? "bg-redi-red text-white shadow-md shadow-redi-red/10"
+                        : "text-redi-vino/70 hover:bg-redi-red/5 hover:text-redi-red"
+                    }`}
+                  >
+                    {cat.nombre}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+
+        {/* User Section (Drawer) */}
+        <div className="pt-4 border-t border-redi-vino/10 space-y-2 mt-auto">
+          {user ? (
+            <div className="space-y-1">
+              <Link 
+                href="/perfil" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center gap-3 px-4 py-2.5 hover:bg-redi-red/5 rounded-2xl transition-all group"
+              >
+                <div className="w-8 h-8 rounded-full bg-redi-vino flex items-center justify-center text-redi-beige text-xs font-bold shrink-0">
+                  {user.email?.slice(0, 2).toUpperCase()}
+                </div>
+                <div className="text-left min-w-0">
+                  <p className="text-[11px] font-black text-redi-vino truncate">Mi Perfil</p>
+                  <p className="text-[9px] font-bold text-redi-vino/40 uppercase tracking-wider truncate">Mi cuenta</p>
+                </div>
+              </Link>
+
+              <Link 
+                href="/admin" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center gap-3 px-4 py-2.5 hover:bg-redi-red/5 rounded-2xl transition-all group text-redi-vino/70 hover:text-redi-red"
+              >
+                <Upload className="w-4 h-4 shrink-0" />
+                <span className="text-[11px] font-black tracking-wider uppercase">Subir recurso</span>
+              </Link>
+
+              <button 
+                onClick={() => {
+                  handleLogout();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-redi-red/5 rounded-2xl transition-all text-redi-red"
+              >
+                <LogOut className="w-4 h-4 shrink-0" />
+                <span className="text-[11px] font-black tracking-wider uppercase">Cerrar sesión</span>
+              </button>
+            </div>
+          ) : (
+            <Link 
+              href="/auth/login" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center gap-3 px-4 py-2.5 hover:bg-redi-red/5 rounded-2xl transition-all group text-redi-vino/70 hover:text-redi-red"
+            >
+              <LogIn className="w-4 h-4 shrink-0" />
+              <span className="text-[11px] font-black tracking-wider uppercase">Iniciar sesión</span>
+            </Link>
+          )}
+        </div>
+      </div>
+
       <nav className="border-b border-redi-vino/10 flex flex-col sticky top-0 bg-redi-beige z-30 shadow-sm md:ml-64">
         {/* Top row */}
         <div className="h-16 md:h-20 flex items-center justify-between pl-6 pr-6 md:pl-6 md:pr-10">
-          <div className="flex-shrink-0 md:hidden">
+          <div className="flex items-center gap-3 md:hidden">
+            {/* Hamburger button */}
+            <button 
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="p-2 -ml-2 text-redi-vino hover:text-redi-red transition-colors"
+              aria-label="Abrir menú"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
             <button 
               onClick={resetAllFilters}
               className="flex items-center"
             >
               <div 
-                className="w-[129px] h-[50px] bg-redi-vino dark:bg-redi-beige"
+                className="w-[80px] h-[31px] bg-redi-vino"
                 style={{
                   maskImage: 'url(/redi-logo.svg)',
                   WebkitMaskImage: 'url(/redi-logo.svg)',
@@ -250,7 +380,7 @@ function HomeContent() {
 
         {/* Subcategories Bar */}
         <div className="w-full bg-redi-beige dark:bg-redi-vino">
-          <div className="max-w-5xl mx-auto flex items-center justify-center gap-3 py-4 px-6 overflow-x-auto no-scrollbar">
+          <div className="max-w-5xl mx-auto flex items-center justify-start md:justify-center gap-3 py-4 px-6 overflow-x-auto no-scrollbar">
             <button
               onClick={() => setSubcategoriaSeleccionada(null)}
               className={`whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 border ${
