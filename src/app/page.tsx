@@ -120,8 +120,41 @@ function HomeContent() {
       recurso.tags?.some((tag: string) => tag.toLowerCase().includes(busqueda.toLowerCase()));
     
     const cumpleSubcategoria = !subcategoriaSeleccionada || 
-      recurso.tags?.some((tag: string) => tag.toLowerCase() === subcategoriaSeleccionada.toLowerCase()) ||
-      recurso.subcategoria?.toLowerCase() === subcategoriaSeleccionada.toLowerCase();
+      recurso.tags?.some((tag: string) => {
+        const t = tag.toLowerCase();
+        const s = subcategoriaSeleccionada.toLowerCase();
+        if (s === 'vectores') return t === 'vectores' || t === 'vector' || t === 'ilustraciones' || t === 'gráficos' || t === 'graficos';
+        if (s === 'mockups') return t === 'mockups' || t === 'mock ups' || t === 'branding';
+        return t === s;
+      }) ||
+      recurso.subcategoria?.toLowerCase() === subcategoriaSeleccionada.toLowerCase() ||
+      (() => {
+        const s = subcategoriaSeleccionada.toLowerCase();
+        const catId = recurso.categoria_id || "";
+        const catObj = categorias.find(c => c.id === catId);
+        const catNombre = (catObj?.nombre || "").toLowerCase();
+        const catSlug = (catObj?.slug || "").toLowerCase();
+        
+        if (s === 'vectores') {
+          return catNombre === 'ilustraciones' || catNombre === 'gráficos' || catNombre === 'graficos' || catSlug === 'ilustraciones' || catSlug === 'graficos';
+        }
+        if (s === 'fuentes') {
+          return catNombre === 'fuentes' || catSlug === 'fuentes';
+        }
+        if (s === '3d') {
+          return catNombre === '3d' || catSlug === '3d';
+        }
+        if (s === 'mockups') {
+          return catNombre === 'mock ups' || catNombre === 'mockups' || catSlug === 'mockups' || catSlug === 'mock-ups';
+        }
+        if (s === 'plantillas') {
+          return catNombre === 'plantillas' || catSlug === 'plantillas';
+        }
+        if (s === 'fotos') {
+          return catNombre === 'fotos' || catSlug === 'fotos';
+        }
+        return false;
+      })();
 
     let selectedCat = categoriaSeleccionada;
     if (selectedCat) {
