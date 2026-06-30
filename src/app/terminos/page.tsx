@@ -27,7 +27,7 @@ export default function TerminosPage() {
             Términos y Condiciones
           </h1>
           <p className="text-sm opacity-60 font-medium">
-            Última actualización: junio 2025
+            Última actualización: junio 2026
           </p>
         </div>
 
@@ -70,11 +70,63 @@ export default function TerminosPage() {
             </p>
           </section>
 
-          <section className="space-y-3">
-            <h2 className="text-lg font-black opacity-100 text-redi-vino dark:text-redi-beige">5. Propiedad intelectual</h2>
-            <p>
-              El diseño, logotipos, marcas y contenidos propios de la plataforma Redi son propiedad del Instituto Superior Tecnológico Metropolitano. Los recursos subidos por usuarios o colaboradores conservan los derechos correspondientes a sus autores originales, tal como se indica en las licencias adjuntas a cada recurso.
-            </p>
+          <section className="space-y-4">
+            <h2 className="text-lg font-black opacity-100 text-redi-vino dark:text-redi-beige">5. Propiedad intelectual y autoría del estudiante</h2>
+            <div className="space-y-6 mt-4">
+              <div className="space-y-2">
+                <h3 className="font-bold text-sm text-redi-vino dark:text-redi-beige">5.1. Autoría Exclusiva del Estudiante</h3>
+                <p>
+                  Se reconoce de manera explícita y definitiva que la autoría y propiedad intelectual de todos los recursos gráficos (diseños, ilustraciones, animaciones, identidades visuales, etc.) desarrollados dentro del entorno académico pertenecen directa y exclusivamente al estudiante creador.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="font-bold text-sm text-redi-vino dark:text-redi-beige">5.2. Derecho de Uso y Difusión para el Instituto</h3>
+                <p>
+                  Como contraparte al proceso formativo y de mentoría, el estudiante otorga a La Metro el derecho permanente y no exclusivo para utilizar, exhibir, reproducir y difundir dichos recursos gráficos en sus plataformas digitales, página web, redes sociales oficiales, portafolios institucionales y material de difusión académica.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="font-bold text-sm text-redi-vino dark:text-redi-beige">5.3. Modelo Ganar-Ganar y Restricción Comercial de la Institución</h3>
+                <p>
+                  Este acuerdo se fundamenta en una relación de beneficio mutuo (ganar-ganar):
+                </p>
+                <ul className="list-disc list-inside space-y-2 ml-4">
+                  <li>
+                    <span className="font-bold">Para La Metro:</span> El instituto se compromete estrictamente a no comercializar, vender ni lucrar de ninguna forma con los recursos gráficos de los estudiantes. Su uso se limita únicamente a la visibilidad y prestigio institucional a través de la exposición de trabajos de calidad en su plataforma.
+                  </li>
+                  <li>
+                    <span className="font-bold">Para el Estudiante:</span> El estudiante obtiene una plataforma de alta visibilidad para exponer su talento al público y al mercado laboral. Asimismo, el estudiante conserva la plena y absoluta libertad de comercializar, vender o licenciar sus recursos en el ámbito profesional de manera independiente, sin ninguna restricción por parte del instituto.
+                  </li>
+                </ul>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="font-bold text-sm text-redi-vino dark:text-redi-beige">5.4. Visibilidad de Autoría (Crédito Obligatorio)</h3>
+                <p>
+                  Para que el principio de \"ganar-ganar\" sea efectivo, toda publicación o exhibición que realice La Metro de un recurso gráfico dentro de su plataforma o canales de difusión deberá mostrar de forma clara y visible el nombre del autor.
+                </p>
+                <div className="p-4 bg-redi-vino/5 rounded-xl border border-redi-vino/10 font-bold text-xs">
+                  Formato de Crédito: \"Recurso creado por [Nombre del Estudiante] — Estudiante de La Metro\".
+                </div>
+                <p>
+                  Por su parte, el estudiante se compromete a mencionar a La Metro como la institución donde se gestó el proyecto al incluirlo en sus portafolios personales o profesionales.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="font-bold text-sm text-redi-vino dark:text-redi-beige">5.5. Responsabilidad de Originalidad</h3>
+                <p>
+                  El estudiante es el único responsable de garantizar que el recurso entregado es de su autoría original y que no vulnera derechos de propiedad intelectual de terceros (como tipografías, imágenes de stock o vectores), liberando a la institución de cualquier reclamación legal.
+                </p>
+              </div>
+
+              <div className="p-5 bg-redi-vino/5 rounded-2xl border border-redi-red/20 font-medium text-xs mt-6 leading-relaxed">
+                <span className="font-black uppercase tracking-wider block mb-1.5 text-redi-red">Formato de Aceptación Digital</span>
+                Al subir y registrar este recurso gráfico en las plataformas de La Metro, el estudiante ratifica su autoría y acepta los términos de este acuerdo de visibilidad mutua, autorizando su uso institucional no comercial bajo el esquema de reconocimiento de créditos establecido.
+              </div>
+            </div>
           </section>
 
           <section className="space-y-3">
