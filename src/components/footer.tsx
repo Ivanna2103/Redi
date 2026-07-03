@@ -1,14 +1,31 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Instagram, Facebook } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { supabase } from '@/lib/supabaseClient';
 
 export function Footer() {
   const pathname = usePathname();
   const isHome = pathname === '/';
   const isAuth = pathname.startsWith('/auth');
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      setUser(data.user);
+    };
+    checkUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   if (isAuth) return null;
 
@@ -85,7 +102,9 @@ export function Footer() {
           <h4 className="text-sm font-bold">Plataforma</h4>
           <ul className="space-y-4 text-[13px] font-medium opacity-80">
             <li><Link href="/perfil" className="hover:underline underline-offset-4">Mi Perfil</Link></li>
-            <li><Link href="/admin" className="hover:underline underline-offset-4">Subir un recurso</Link></li>
+            {user && (user.email === 'ivannanicolet2103@gmail.com' || user.email === 'redi@lametro.edu.ec') && (
+              <li><Link href="/admin" className="hover:underline underline-offset-4">Subir un recurso</Link></li>
+            )}
           </ul>
         </div>
 

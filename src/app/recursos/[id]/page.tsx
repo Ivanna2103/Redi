@@ -27,7 +27,7 @@ const getDirectDownloadUrl = (url: string): string => {
       }
     }
     if (fileId) {
-      return `https://drive.google.com/uc?export=download&id=${fileId}`;
+      return `https://drive.usercontent.google.com/download?id=${fileId}&export=download`;
     }
   }
 
@@ -54,6 +54,7 @@ export default function RecursoDetallePage() {
   const [recursosSimilares, setRecursosSimilares] = useState<any[]>([]);
   const [isSaved, setIsSaved] = useState(false);
   const [descargaOpciones, setDescargaOpciones] = useState<{ label: string; url: string; }[]>([]);
+  const [showTrialLimitModal, setShowTrialLimitModal] = useState(false);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -188,8 +189,7 @@ export default function RecursoDetallePage() {
 
       if (!hasDownloadedThis) {
         if (trialDownloads.length >= 3) {
-          alert("Has alcanzado el límite de 3 descargas de prueba. Crea una cuenta gratis para descargar recursos ilimitados.");
-          router.push("/auth/login?mode=signup");
+          setShowTrialLimitModal(true);
           return;
         } else {
           trialDownloads.push(currentId);
@@ -565,6 +565,44 @@ export default function RecursoDetallePage() {
                 </Link>
               );
             })}
+          </div>
+        </div>
+      )}
+      {showTrialLimitModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-redi-vino/40 dark:bg-black/60 backdrop-blur-md" 
+            onClick={() => setShowTrialLimitModal(false)}
+          />
+          
+          <div className="relative w-full max-w-md bg-redi-beige dark:bg-redi-vino p-8 md:p-10 rounded-[32px] border border-redi-vino/15 dark:border-redi-beige/15 shadow-2xl animate-in fade-in zoom-in-95 duration-200 text-center flex flex-col items-center">
+            <div className="w-16 h-16 bg-redi-red/10 text-redi-red rounded-full flex items-center justify-center mb-6">
+              <Lock className="w-8 h-8" />
+            </div>
+            
+            <h3 className="text-2xl font-black text-redi-vino dark:text-redi-beige tracking-tight mb-4 uppercase">
+              Límite Alcanzado
+            </h3>
+            
+            <p className="text-sm text-redi-vino/70 dark:text-redi-beige/70 font-medium leading-relaxed mb-8">
+              Has alcanzado tu límite de <span className="font-bold text-redi-red">3 descargas de prueba</span>. Crea una cuenta gratuita para seguir descargando recursos de forma ilimitada.
+            </p>
+            
+            <div className="w-full flex flex-col gap-3">
+              <Link
+                href="/auth/login?mode=signup"
+                className="w-full h-12 bg-redi-red hover:bg-redi-red/90 text-white font-bold rounded-full flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.98] text-xs font-black tracking-widest uppercase"
+              >
+                Crear cuenta gratis
+              </Link>
+              
+              <button
+                onClick={() => setShowTrialLimitModal(false)}
+                className="w-full h-12 bg-transparent hover:bg-redi-vino/5 dark:hover:bg-redi-beige/5 text-redi-vino/60 dark:text-redi-beige/60 font-bold rounded-full flex items-center justify-center transition-all text-xs tracking-widest uppercase"
+              >
+                Volver después
+              </button>
+            </div>
           </div>
         </div>
       )}

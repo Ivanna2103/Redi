@@ -36,7 +36,7 @@ const getDirectDownloadUrl = (url: string): string => {
       }
     }
     if (fileId) {
-      return `https://drive.google.com/uc?export=download&id=${fileId}`;
+      return `https://drive.usercontent.google.com/download?id=${fileId}&export=download`;
     }
   }
   return url;
@@ -66,7 +66,10 @@ export function FontPreview({ fontFamily, fontUrl, designer, downloadUrl }: Font
     if (fontUrl && fontFamily) {
       // Es crucial envolver la URL en comillas dentro de url("") por si el archivo tiene paréntesis o espacios, ej: "(4).otf"
       const directUrl = getDirectDownloadUrl(fontUrl);
-      const fontFace = new FontFace(fontFamily, `url("${directUrl}")`);
+      const fontFace = new FontFace(fontFamily, `url("${directUrl}")`, {
+        weight: "100 900",
+        style: "normal italic"
+      });
       fontFace.load().then((loadedFace) => {
         document.fonts.add(loadedFace);
         setIsFontLoaded(true);

@@ -279,14 +279,16 @@ function HomeContent() {
                 </div>
               </Link>
 
-              <Link 
-                href="/admin" 
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-4 py-2.5 hover:bg-redi-red/5 rounded-2xl transition-all group text-redi-vino/70 hover:text-redi-red"
-              >
-                <Upload className="w-4 h-4 shrink-0" />
-                <span className="text-[11px] font-black tracking-wider uppercase">Subir recurso</span>
-              </Link>
+              {user && (user.email === 'ivannanicolet2103@gmail.com' || user.email === 'redi@lametro.edu.ec') && (
+                <Link 
+                  href="/admin" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-2.5 hover:bg-redi-red/5 rounded-2xl transition-all group text-redi-vino/70 hover:text-redi-red"
+                >
+                  <Upload className="w-4 h-4 shrink-0" />
+                  <span className="text-[11px] font-black tracking-wider uppercase">Subir recurso</span>
+                </Link>
+              )}
 
               <button 
                 onClick={() => {
@@ -363,10 +365,10 @@ function HomeContent() {
 
           <div className="flex items-center gap-4 md:gap-6">
             <ThemeToggle />
-            {user && (
+            {user && (user.email === 'ivannanicolet2103@gmail.com' || user.email === 'redi@lametro.edu.ec') && (
               <Link 
                 href="/admin" 
-                className="px-6 py-2.5 bg-redi-vino/5 dark:bg-redi-beige/5 text-redi-vino/70 dark:text-redi-beige/70 text-[10px] font-bold rounded-full hover:bg-redi-red/10 hover:text-redi-red dark:hover:bg-redi-red/20 dark:hover:text-redi-red transition-all active:scale-95 tracking-widest uppercase flex md:hidden items-center justify-center"
+                className="px-6 py-2.5 bg-redi-vino/5 dark:bg-redi-beige/5 text-redi-vino/70 dark:text-redi-beige/70 text-[10px] font-bold rounded-full hover:bg-redi-red/10 hover:text-redi-red dark:hover:bg-redi-red/20 dark:hover:text-redi-red transition-all active:scale-95 tracking-widest uppercase hidden md:flex items-center justify-center"
               >
                 Admin
               </Link>
@@ -374,7 +376,7 @@ function HomeContent() {
             {user && (
               <Link 
                 href="/perfil" 
-                className="px-6 py-2.5 bg-redi-vino/5 dark:bg-redi-beige/5 text-redi-vino/70 dark:text-redi-beige/70 text-[10px] font-bold rounded-full hover:bg-redi-red/10 hover:text-redi-red dark:hover:bg-redi-red/20 dark:hover:text-redi-red transition-all active:scale-95 tracking-widest uppercase flex md:hidden items-center justify-center"
+                className="px-6 py-2.5 bg-redi-vino/5 dark:bg-redi-beige/5 text-redi-vino/70 dark:text-redi-beige/70 text-[10px] font-bold rounded-full hover:bg-redi-red/10 hover:text-redi-red dark:hover:bg-redi-red/20 dark:hover:text-redi-red transition-all active:scale-95 tracking-widest uppercase hidden md:flex items-center justify-center"
               >
                 Mi Perfil
               </Link>
@@ -382,14 +384,14 @@ function HomeContent() {
             {user ? (
               <button
                 onClick={handleLogout}
-                className="px-6 py-2.5 bg-redi-vino/5 dark:bg-redi-beige/5 text-redi-vino/70 dark:text-redi-beige/70 text-[10px] font-bold rounded-full hover:bg-redi-red/10 hover:text-redi-red dark:hover:bg-redi-red/20 dark:hover:text-redi-red transition-all active:scale-95 tracking-widest uppercase flex md:hidden items-center justify-center"
+                className="px-6 py-2.5 bg-redi-vino/5 dark:bg-redi-beige/5 text-redi-vino/70 dark:text-redi-beige/70 text-[10px] font-bold rounded-full hover:bg-redi-red/10 hover:text-redi-red dark:hover:bg-redi-red/20 dark:hover:text-redi-red transition-all active:scale-95 tracking-widest uppercase hidden md:flex items-center justify-center"
               >
                 Salir
               </button>
             ) : (
               <Link
                 href="/auth/login"
-                className="px-8 py-2.5 bg-redi-vino/5 dark:bg-redi-beige/5 text-redi-vino/70 dark:text-redi-beige/70 text-[10px] font-bold rounded-full hover:bg-redi-red/10 hover:text-redi-red dark:hover:bg-redi-red/20 dark:hover:text-redi-red transition-all active:scale-95 tracking-widest uppercase flex md:hidden items-center justify-center"
+                className="px-8 py-2.5 bg-redi-vino/5 dark:bg-redi-beige/5 text-redi-vino/70 dark:text-redi-beige/70 text-[10px] font-bold rounded-full hover:bg-redi-red/10 hover:text-redi-red dark:hover:bg-redi-red/20 dark:hover:text-redi-red transition-all active:scale-95 tracking-widest uppercase hidden md:flex items-center justify-center"
               >
                 Entrar
               </Link>
@@ -526,13 +528,15 @@ function HomeContent() {
                 </Link>
 
                 {/* Subir un recurso (Admin) */}
-                <Link 
-                  href="/admin" 
-                  className="flex items-center gap-3 px-4 py-2.5 text-redi-vino/70 hover:text-redi-red hover:bg-redi-red/5 rounded-2xl text-xs font-bold transition-all"
-                >
-                  <Upload className="w-4 h-4 text-redi-vino/60 group-hover:text-redi-red" />
-                  Subir recurso
-                </Link>
+                {(user.email === 'ivannanicolet2103@gmail.com' || user.email === 'redi@lametro.edu.ec') && (
+                  <Link 
+                    href="/admin" 
+                    className="flex items-center gap-3 px-4 py-2.5 text-redi-vino/70 hover:text-redi-red hover:bg-redi-red/5 rounded-2xl text-xs font-bold transition-all"
+                  >
+                    <Upload className="w-4 h-4 text-redi-vino/60 group-hover:text-redi-red" />
+                    Subir recurso
+                  </Link>
+                )}
 
                 {/* Salir */}
                 <button

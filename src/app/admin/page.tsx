@@ -30,8 +30,8 @@ export default function AdminPage() {
   useEffect(() => {
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push("/auth/login");
+      if (!user || (user.email !== 'ivannanicolet2103@gmail.com' && user.email !== 'redi@lametro.edu.ec')) {
+        router.push("/");
         return;
       }
 
