@@ -365,37 +365,6 @@ function HomeContent() {
 
           <div className="flex items-center gap-4 md:gap-6">
             <ThemeToggle />
-            {user && (user.email === 'ivannanicolet2103@gmail.com' || user.email === 'redi@lametro.edu.ec') && (
-              <Link 
-                href="/admin" 
-                className="px-6 py-2.5 bg-redi-vino/5 dark:bg-redi-beige/5 text-redi-vino/70 dark:text-redi-beige/70 text-[10px] font-bold rounded-full hover:bg-redi-red/10 hover:text-redi-red dark:hover:bg-redi-red/20 dark:hover:text-redi-red transition-all active:scale-95 tracking-widest uppercase hidden md:flex items-center justify-center"
-              >
-                Admin
-              </Link>
-            )}
-            {user && (
-              <Link 
-                href="/perfil" 
-                className="px-6 py-2.5 bg-redi-vino/5 dark:bg-redi-beige/5 text-redi-vino/70 dark:text-redi-beige/70 text-[10px] font-bold rounded-full hover:bg-redi-red/10 hover:text-redi-red dark:hover:bg-redi-red/20 dark:hover:text-redi-red transition-all active:scale-95 tracking-widest uppercase hidden md:flex items-center justify-center"
-              >
-                Mi Perfil
-              </Link>
-            )}
-            {user ? (
-              <button
-                onClick={handleLogout}
-                className="px-6 py-2.5 bg-redi-vino/5 dark:bg-redi-beige/5 text-redi-vino/70 dark:text-redi-beige/70 text-[10px] font-bold rounded-full hover:bg-redi-red/10 hover:text-redi-red dark:hover:bg-redi-red/20 dark:hover:text-redi-red transition-all active:scale-95 tracking-widest uppercase hidden md:flex items-center justify-center"
-              >
-                Salir
-              </button>
-            ) : (
-              <Link
-                href="/auth/login"
-                className="px-8 py-2.5 bg-redi-vino/5 dark:bg-redi-beige/5 text-redi-vino/70 dark:text-redi-beige/70 text-[10px] font-bold rounded-full hover:bg-redi-red/10 hover:text-redi-red dark:hover:bg-redi-red/20 dark:hover:text-redi-red transition-all active:scale-95 tracking-widest uppercase hidden md:flex items-center justify-center"
-              >
-                Entrar
-              </Link>
-            )}
           </div>
         </div>
 
