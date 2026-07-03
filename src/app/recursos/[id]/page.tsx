@@ -179,6 +179,25 @@ export default function RecursoDetallePage() {
                    urlStr.endsWith(".ttf");
 
   const handleDownload = async () => {
+    // 1. Verificar límite de descargas de prueba para usuarios invitados (no logueados)
+    if (!user) {
+      const trialDownloadsStr = localStorage.getItem("redi_trial_downloads");
+      const trialDownloads = trialDownloadsStr ? JSON.parse(trialDownloadsStr) : [];
+      const currentId = recurso.id;
+      const hasDownloadedThis = trialDownloads.includes(currentId);
+
+      if (!hasDownloadedThis) {
+        if (trialDownloads.length >= 3) {
+          alert("Has alcanzado el límite de 3 descargas de prueba. Crea una cuenta gratis para descargar recursos ilimitados.");
+          router.push("/auth/login?mode=signup");
+          return;
+        } else {
+          trialDownloads.push(currentId);
+          localStorage.setItem("redi_trial_downloads", JSON.stringify(trialDownloads));
+        }
+      }
+    }
+
     const urlsToDownload: string[] = [];
     
     if (descargaOpciones && descargaOpciones.length > 0) {
@@ -195,13 +214,16 @@ export default function RecursoDetallePage() {
       return;
     }
     
-    try {
-      await supabase.from('descargas').insert({
-        user_id: user.id,
-        recurso_id: recurso.id
-      });
-    } catch (err) {
-      console.error("Error al registrar descarga:", err);
+    // Solo registramos en la base de datos si el usuario está autenticado
+    if (user) {
+      try {
+        await supabase.from('descargas').insert({
+          user_id: user.id,
+          recurso_id: recurso.id
+        });
+      } catch (err) {
+        console.error("Error al registrar descarga:", err);
+      }
     }
 
     urlsToDownload.forEach((url, idx) => {
@@ -280,10 +302,10 @@ export default function RecursoDetallePage() {
 
   // Tipos de archivo (file types)
   let fileTypes = "PSD, JPG";
-  if (descargaOpciones && descargaOpciones.length > 0) {
-    fileTypes = descargaOpciones.map(op => op.label.toUpperCase()).join(", ");
-  } else if (recurso.formato) {
+  if (recurso.formato) {
     fileTypes = recurso.formato.toUpperCase();
+  } else if (descargaOpciones && descargaOpciones.length > 0) {
+    fileTypes = descargaOpciones.map(op => op.label.toUpperCase()).join(", ");
   } else {
     if (catNombreStr.includes("fuente") || catNombreStr.includes("tipo")) {
       fileTypes = "OTF, TTF, WOFF";
@@ -406,24 +428,14 @@ export default function RecursoDetallePage() {
 
             {/* Brand-colored download button */}
             <div className="mb-6 w-full max-w-[300px]">
-              {user ? (
-                <button
-                  onClick={handleDownload}
-                  disabled={descargaOpciones.length === 0 && !(recurso.url_archivo || recurso.archivo_url)}
-                  className={`w-full h-11 bg-redi-red hover:bg-redi-red/90 text-white font-bold rounded-full flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.98] text-xs tracking-wide ${(descargaOpciones.length === 0 && !(recurso.url_archivo || recurso.archivo_url)) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                  <Download className="w-4 h-4" />
-                  Descargar
-                </button>
-              ) : (
-                <Link
-                  href="/auth/login"
-                  className="w-full h-11 bg-redi-red hover:bg-redi-red/90 text-white font-bold rounded-full flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.98] text-xs tracking-wide"
-                >
-                  <Download className="w-4 h-4" />
-                  Descargar
-                </Link>
-              )}
+              <button
+                onClick={handleDownload}
+                disabled={descargaOpciones.length === 0 && !(recurso.url_archivo || recurso.archivo_url)}
+                className={`w-full h-11 bg-redi-red hover:bg-redi-red/90 text-white font-bold rounded-full flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.98] text-xs tracking-wide ${(descargaOpciones.length === 0 && !(recurso.url_archivo || recurso.archivo_url)) ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                <Download className="w-4 h-4" />
+                Descargar
+              </button>
             </div>
 
             {/* Tags section */}
