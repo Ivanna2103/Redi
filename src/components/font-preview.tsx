@@ -19,6 +19,29 @@ const defaultVariants: FontVariant[] = [
   { label: "Black 900", fontWeight: 900, fontStyle: "normal" },
 ];
 
+const getDirectDownloadUrl = (url: string): string => {
+  if (!url) return "";
+  
+  if (url.includes("drive.google.com")) {
+    let fileId = "";
+    if (url.includes("/file/d/")) {
+      const parts = url.split("/file/d/");
+      if (parts[1]) {
+        fileId = parts[1].split("/")[0];
+      }
+    } else if (url.includes("id=")) {
+      const parts = url.split("id=");
+      if (parts[1]) {
+        fileId = parts[1].split("&")[0];
+      }
+    }
+    if (fileId) {
+      return `https://drive.google.com/uc?export=download&id=${fileId}`;
+    }
+  }
+  return url;
+};
+
 interface FontPreviewProps {
   fontFamily: string;
   fontUrl?: string;
@@ -42,7 +65,8 @@ export function FontPreview({ fontFamily, fontUrl, designer, downloadUrl }: Font
   useEffect(() => {
     if (fontUrl && fontFamily) {
       // Es crucial envolver la URL en comillas dentro de url("") por si el archivo tiene paréntesis o espacios, ej: "(4).otf"
-      const fontFace = new FontFace(fontFamily, `url("${fontUrl}")`);
+      const directUrl = getDirectDownloadUrl(fontUrl);
+      const fontFace = new FontFace(fontFamily, `url("${directUrl}")`);
       fontFace.load().then((loadedFace) => {
         document.fonts.add(loadedFace);
         setIsFontLoaded(true);

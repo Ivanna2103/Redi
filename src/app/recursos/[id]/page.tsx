@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Download, Maximize, FileType, Lock, Link2, Check, Bookmark, X, ChevronDown } from "lucide-react";
@@ -9,9 +9,43 @@ import { supabase } from "@/lib/supabaseClient";
 import { FontPreview } from "@/components/font-preview";
 import { ThemeToggle } from "@/components/theme-toggle";
 
+const getDirectDownloadUrl = (url: string): string => {
+  if (!url) return "";
+  
+  // 1. Google Drive Link
+  if (url.includes("drive.google.com")) {
+    let fileId = "";
+    if (url.includes("/file/d/")) {
+      const parts = url.split("/file/d/");
+      if (parts[1]) {
+        fileId = parts[1].split("/")[0];
+      }
+    } else if (url.includes("id=")) {
+      const parts = url.split("id=");
+      if (parts[1]) {
+        fileId = parts[1].split("&")[0];
+      }
+    }
+    if (fileId) {
+      return `https://drive.google.com/uc?export=download&id=${fileId}`;
+    }
+  }
+
+  // 2. Supabase Storage Link
+  if (url.includes("supabase.co") && url.includes("/storage/")) {
+    if (!url.includes("download=")) {
+      const separator = url.includes("?") ? "&" : "?";
+      return `${url}${separator}download=`;
+    }
+  }
+
+  return url;
+};
+
 export default function RecursoDetallePage() {
   const { id } = useParams();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const categoriaRef = searchParams.get('categoria');
   const [recurso, setRecurso] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -19,6 +53,7 @@ export default function RecursoDetallePage() {
   const [isDetailsOpen, setIsDetailsOpen] = useState(true);
   const [recursosSimilares, setRecursosSimilares] = useState<any[]>([]);
   const [isSaved, setIsSaved] = useState(false);
+  const [descargaOpciones, setDescargaOpciones] = useState<{ label: string; url: string; }[]>([]);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -72,6 +107,58 @@ export default function RecursoDetallePage() {
     fetchRecurso();
   }, [id]);
 
+  useEffect(() => {
+    if (recurso) {
+      const formatsArray = recurso.formato 
+        ? recurso.formato.split(',').map((f: string) => f.trim().toUpperCase())
+        : [];
+
+      const getFormatFromUrl = (url: string, index: number, defaultFormat: string): string => {
+        if (!url) return "";
+        try {
+          const cleanUrl = url.split('?')[0]; // Remove query params
+          const ext = cleanUrl.split('.').pop()?.toLowerCase() || "";
+          if (["ai", "png", "jpg", "jpeg", "otf", "ttf", "woff", "psd", "pdf", "zip", "svg", "eps"].includes(ext)) {
+            return ext.toUpperCase();
+          }
+        } catch (e) {}
+        
+        // Fallback to the format written by the user at that index
+        if (formatsArray[index]) {
+          return formatsArray[index];
+        }
+        return defaultFormat.toUpperCase() || "FORMATO";
+      };
+
+      const options = [];
+      const primaryUrl = recurso.url_archivo || recurso.archivo_url;
+      const primaryFormat = recurso.formato || "Principal";
+
+      if (primaryUrl) {
+        options.push({
+          label: getFormatFromUrl(primaryUrl, 0, primaryFormat),
+          url: getDirectDownloadUrl(primaryUrl)
+        });
+      }
+
+      if (recurso.archivo_url_2) {
+        options.push({
+          label: getFormatFromUrl(recurso.archivo_url_2, 1, "Formato 2"),
+          url: getDirectDownloadUrl(recurso.archivo_url_2)
+        });
+      }
+
+      if (recurso.archivo_url_3) {
+        options.push({
+          label: getFormatFromUrl(recurso.archivo_url_3, 2, "Formato 3"),
+          url: getDirectDownloadUrl(recurso.archivo_url_3)
+        });
+      }
+
+      setDescargaOpciones(options);
+    }
+  }, [recurso]);
+
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-redi-beige dark:bg-redi-vino">
       <div className="w-8 h-8 border-4 border-redi-vino dark:border-redi-beige border-t-transparent rounded-full animate-spin" />
@@ -92,7 +179,18 @@ export default function RecursoDetallePage() {
                    urlStr.endsWith(".ttf");
 
   const handleDownload = async () => {
-    if (!(recurso.url_archivo || recurso.archivo_url)) {
+    const urlsToDownload: string[] = [];
+    
+    if (descargaOpciones && descargaOpciones.length > 0) {
+      descargaOpciones.forEach(op => {
+        if (op.url) urlsToDownload.push(op.url);
+      });
+    } else {
+      const singleUrl = recurso.url_archivo || recurso.archivo_url;
+      if (singleUrl) urlsToDownload.push(getDirectDownloadUrl(singleUrl));
+    }
+
+    if (urlsToDownload.length === 0) {
       alert("El archivo de descarga aún no está disponible para este recurso.");
       return;
     }
@@ -106,10 +204,17 @@ export default function RecursoDetallePage() {
       console.error("Error al registrar descarga:", err);
     }
 
-    const link = document.createElement('a');
-    link.href = recurso.url_archivo || recurso.archivo_url;
-    link.target = '_blank';
-    link.click();
+    urlsToDownload.forEach((url, idx) => {
+      setTimeout(() => {
+        const link = document.createElement('a');
+        link.href = url;
+        link.target = '_blank';
+        link.setAttribute('download', '');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }, idx * 350); // 350ms delay to prevent browser block popup
+    });
   };
 
   const handleCopyLink = () => {
@@ -175,7 +280,9 @@ export default function RecursoDetallePage() {
 
   // Tipos de archivo (file types)
   let fileTypes = "PSD, JPG";
-  if (recurso.formato) {
+  if (descargaOpciones && descargaOpciones.length > 0) {
+    fileTypes = descargaOpciones.map(op => op.label.toUpperCase()).join(", ");
+  } else if (recurso.formato) {
     fileTypes = recurso.formato.toUpperCase();
   } else {
     if (catNombreStr.includes("fuente") || catNombreStr.includes("tipo")) {
@@ -260,13 +367,15 @@ export default function RecursoDetallePage() {
             Licencias
           </Link>
           
-          <button 
-            onClick={handleSaveResource}
-            className={`h-9 px-4 rounded-xl text-xs font-bold flex items-center gap-2 transition-all border ${isSaved ? 'bg-redi-red/10 border-redi-red/20 text-redi-red' : 'bg-redi-vino/5 hover:bg-redi-vino/10 text-redi-vino/80 border-redi-vino/10'}`}
-          >
-            <Bookmark className={`w-3.5 h-3.5 text-redi-red ${isSaved ? 'fill-redi-red' : ''}`} />
-            {isSaved ? 'Guardado' : 'Guardar'}
-          </button>
+          {user && (
+            <button 
+              onClick={handleSaveResource}
+              className={`h-9 px-4 rounded-xl text-xs font-bold flex items-center gap-2 transition-all border ${isSaved ? 'bg-redi-red/10 border-redi-red/20 text-redi-red' : 'bg-redi-vino/5 hover:bg-redi-vino/10 text-redi-vino/80 border-redi-vino/10'}`}
+            >
+              <Bookmark className={`w-3.5 h-3.5 text-redi-red ${isSaved ? 'fill-redi-red' : ''}`} />
+              {isSaved ? 'Guardado' : 'Guardar'}
+            </button>
+          )}
         </div>
       </div>
 
@@ -300,8 +409,8 @@ export default function RecursoDetallePage() {
               {user ? (
                 <button
                   onClick={handleDownload}
-                  disabled={!(recurso.url_archivo || recurso.archivo_url)}
-                  className={`w-full h-11 bg-redi-red hover:bg-redi-red/90 text-white font-bold rounded-full flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.98] text-xs tracking-wide ${!(recurso.url_archivo || recurso.archivo_url) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  disabled={descargaOpciones.length === 0 && !(recurso.url_archivo || recurso.archivo_url)}
+                  className={`w-full h-11 bg-redi-red hover:bg-redi-red/90 text-white font-bold rounded-full flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.98] text-xs tracking-wide ${(descargaOpciones.length === 0 && !(recurso.url_archivo || recurso.archivo_url)) ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   <Download className="w-4 h-4" />
                   Descargar

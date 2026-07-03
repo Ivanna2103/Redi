@@ -17,12 +17,15 @@ export default function AdminPage() {
 
   // Form State
   const [titulo, setTitulo] = useState("");
+  const [autor, setAutor] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [dimensiones, setDimensiones] = useState("");
   const [formato, setFormato] = useState("");
   const [categoriaId, setCategoriaId] = useState("");
   const [imagenFile, setImagenFile] = useState<File | null>(null);
   const [linkDescarga, setLinkDescarga] = useState("");
+  const [linkDescarga2, setLinkDescarga2] = useState("");
+  const [linkDescarga3, setLinkDescarga3] = useState("");
 
   useEffect(() => {
     const init = async () => {
@@ -89,12 +92,15 @@ export default function AdminPage() {
       // 3. Guardar el nuevo recurso en la base de datos
       const { error: insertError } = await supabase.from('recursos').insert({
         titulo,
+        Autor: autor || null,
         descripcion,
-        dimensiones,
+        dimensiones: dimensiones || null,
         formato,
         categoria_id: categoriaId || null,
         imagen_url,
-        archivo_url: url_archivo // Solo enviamos archivo_url ya que url_archivo no existe en la BD
+        archivo_url: url_archivo || null,
+        archivo_url_2: linkDescarga2 || null,
+        archivo_url_3: linkDescarga3 || null
       });
 
       if (insertError) throw insertError;
@@ -102,12 +108,15 @@ export default function AdminPage() {
       // Limpiar formulario y mostrar éxito
       setSuccess(true);
       setTitulo("");
+      setAutor("");
       setDescripcion("");
       setDimensiones("");
       setFormato("");
       setCategoriaId("");
       setImagenFile(null);
       setLinkDescarga("");
+      setLinkDescarga2("");
+      setLinkDescarga3("");
       
       // Resetear file inputs
       (document.getElementById('imagenInput') as HTMLInputElement).value = '';
@@ -199,16 +208,29 @@ export default function AdminPage() {
 
         <form onSubmit={handleSubmit} className="space-y-8 bg-redi-beige dark:bg-redi-vino/40 p-8 md:p-12 rounded-[40px] border border-redi-vino/15 dark:border-redi-beige/20 shadow-sm">
           
-          <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-redi-vino dark:text-redi-beige uppercase tracking-widest ml-1 block">Título del Recurso</label>
-            <input
-              type="text"
-              value={titulo}
-              onChange={(e) => setTitulo(e.target.value)}
-              placeholder="Ej. Sketchyfont o Mockup de iPhone"
-              className="w-full h-14 px-6 bg-transparent border border-redi-vino/20 dark:border-redi-beige/20 rounded-2xl focus:ring-2 focus:ring-redi-red outline-none transition-all font-medium text-sm text-redi-vino dark:text-redi-beige placeholder:text-redi-vino/50 dark:placeholder:text-redi-beige/50"
-              required
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-redi-vino dark:text-redi-beige uppercase tracking-widest ml-1 block">Título del Recurso</label>
+              <input
+                type="text"
+                value={titulo}
+                onChange={(e) => setTitulo(e.target.value)}
+                placeholder="Ej. Sketchyfont o Mockup de iPhone"
+                className="w-full h-14 px-6 bg-transparent border border-redi-vino/20 dark:border-redi-beige/20 rounded-2xl focus:ring-2 focus:ring-redi-red outline-none transition-all font-medium text-sm text-redi-vino dark:text-redi-beige placeholder:text-redi-vino/50 dark:placeholder:text-redi-beige/50"
+                required
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-redi-vino dark:text-redi-beige uppercase tracking-widest ml-1 block">Autor del Recurso (Opcional)</label>
+              <input
+                type="text"
+                value={autor}
+                onChange={(e) => setAutor(e.target.value)}
+                placeholder="Ej. Julian Vasquez o Nombre del alumno"
+                className="w-full h-14 px-6 bg-transparent border border-redi-vino/20 dark:border-redi-beige/20 rounded-2xl focus:ring-2 focus:ring-redi-red outline-none transition-all font-medium text-sm text-redi-vino dark:text-redi-beige placeholder:text-redi-vino/50 dark:placeholder:text-redi-beige/50"
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -250,14 +272,13 @@ export default function AdminPage() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-redi-vino dark:text-redi-beige uppercase tracking-widest ml-1 block">Dimensiones</label>
+            <label className="text-[10px] font-bold text-redi-vino dark:text-redi-beige uppercase tracking-widest ml-1 block">Dimensiones (Opcional)</label>
             <input
               type="text"
               value={dimensiones}
               onChange={(e) => setDimensiones(e.target.value)}
               placeholder="Ej. 1920x1080px o Variable"
               className="w-full h-14 px-6 bg-transparent border border-redi-vino/20 dark:border-redi-beige/20 rounded-2xl focus:ring-2 focus:ring-redi-red outline-none transition-all font-medium text-sm text-redi-vino dark:text-redi-beige placeholder:text-redi-vino/50 dark:placeholder:text-redi-beige/50"
-              required
             />
           </div>
 
@@ -297,6 +318,35 @@ export default function AdminPage() {
                 placeholder="Ej. https://drive.google.com/..."
                 className="w-full h-14 px-6 bg-transparent border border-redi-vino/20 dark:border-redi-beige/20 rounded-2xl focus:ring-2 focus:ring-redi-red outline-none transition-all font-medium text-sm text-redi-vino dark:text-redi-beige placeholder:text-redi-vino/50 dark:placeholder:text-redi-beige/50"
                 required
+              />
+            </div>
+          </div>
+
+          {/* Enlaces de descarga adicionales */}
+          <div className="pt-6 border-t border-redi-vino/10 dark:border-redi-beige/10 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-3">
+              <label className="text-[10px] font-bold text-redi-vino dark:text-redi-beige uppercase tracking-widest ml-1 block flex items-center gap-2">
+                <FileBox className="w-3 h-3" /> Link de Descarga 2 (Opcional)
+              </label>
+              <input
+                type="url"
+                value={linkDescarga2}
+                onChange={(e) => setLinkDescarga2(e.target.value)}
+                placeholder="Ej. .png o .ttf (Google Drive, etc.)"
+                className="w-full h-14 px-6 bg-transparent border border-redi-vino/20 dark:border-redi-beige/20 rounded-2xl focus:ring-2 focus:ring-redi-red outline-none transition-all font-medium text-sm text-redi-vino dark:text-redi-beige placeholder:text-redi-vino/50 dark:placeholder:text-redi-beige/50"
+              />
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-[10px] font-bold text-redi-vino dark:text-redi-beige uppercase tracking-widest ml-1 block flex items-center gap-2">
+                <FileBox className="w-3 h-3" /> Link de Descarga 3 (Opcional)
+              </label>
+              <input
+                type="url"
+                value={linkDescarga3}
+                onChange={(e) => setLinkDescarga3(e.target.value)}
+                placeholder="Ej. .jpg o .woff (Google Drive, etc.)"
+                className="w-full h-14 px-6 bg-transparent border border-redi-vino/20 dark:border-redi-beige/20 rounded-2xl focus:ring-2 focus:ring-redi-red outline-none transition-all font-medium text-sm text-redi-vino dark:text-redi-beige placeholder:text-redi-vino/50 dark:placeholder:text-redi-beige/50"
               />
             </div>
           </div>
