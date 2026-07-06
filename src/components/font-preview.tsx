@@ -66,10 +66,7 @@ export function FontPreview({ fontFamily, fontUrl, designer, downloadUrl }: Font
     if (fontUrl && fontFamily) {
       // Es crucial envolver la URL en comillas dentro de url("") por si el archivo tiene paréntesis o espacios, ej: "(4).otf"
       const directUrl = getDirectDownloadUrl(fontUrl);
-      const fontFace = new FontFace(fontFamily, `url("${directUrl}")`, {
-        weight: "100 900",
-        style: "normal italic"
-      });
+      const fontFace = new FontFace(fontFamily, `url("${directUrl}")`);
       fontFace.load().then((loadedFace) => {
         document.fonts.add(loadedFace);
         setIsFontLoaded(true);
