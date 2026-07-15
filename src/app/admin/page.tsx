@@ -49,6 +49,29 @@ export default function AdminPage() {
         return;
       }
 
+      // Corrección automática de urls de Laika para evitar errores de CORS
+      try {
+        const { data: laikaData } = await supabase
+          .from('recursos')
+          .select('*')
+          .eq('titulo', 'Laika')
+          .maybeSingle();
+        
+        if (laikaData && laikaData.archivo_url && laikaData.archivo_url.includes('drive.google.com')) {
+          console.log("Corrigiendo URLs de la fuente Laika...");
+          await supabase
+            .from('recursos')
+            .update({
+              archivo_url: '/Laika-Regular.ttf',
+              archivo_url_2: null,
+              formato: 'TTF'
+            })
+            .eq('titulo', 'Laika');
+        }
+      } catch (err) {
+        console.error("Error corrigiendo URLs de Laika:", err);
+      }
+
       // Fetch categorias para el dropdown
       const { data: catData } = await supabase.from('categorias').select('*');
       if (catData) setCategorias(catData);
