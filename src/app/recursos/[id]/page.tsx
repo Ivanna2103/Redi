@@ -55,6 +55,7 @@ export default function RecursoDetallePage() {
   const [isSaved, setIsSaved] = useState(false);
   const [descargaOpciones, setDescargaOpciones] = useState<{ label: string; url: string; }[]>([]);
   const [showTrialLimitModal, setShowTrialLimitModal] = useState(false);
+  const [showDownloadOptionsModal, setShowDownloadOptionsModal] = useState(false);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -179,7 +180,23 @@ export default function RecursoDetallePage() {
                    urlStr.endsWith(".otf") ||
                    urlStr.endsWith(".ttf");
 
-  const handleDownload = async () => {
+  const getFormatDescription = (format: string): string => {
+    const f = format.toLowerCase();
+    if (f === "png") return "Imagen con fondo transparente";
+    if (f === "jpg" || f === "jpeg") return "Imagen comprimida de alta calidad";
+    if (f === "svg") return "Vector infinitamente escalable";
+    if (f === "ai") return "Archivo original de Adobe Illustrator";
+    if (f === "psd") return "Documento de Adobe Photoshop";
+    if (f === "pdf") return "Documento PDF listo para imprimir";
+    if (f === "otf" || f === "ttf" || f === "woff") return "Archivo de tipografía instalable";
+    if (f === "zip") return "Paquete comprimido con todos los archivos";
+    if (f === "eps") return "Formato vectorial encapsulado";
+    return "Archivo listo para descargar";
+  };
+
+  const handleDownloadSingleOption = async (op: { label: string; url: string }) => {
+    if (!op.url) return;
+
     // 1. Verificar límite de descargas de prueba para usuarios invitados (no logueados)
     if (!user) {
       const trialDownloadsStr = localStorage.getItem("redi_trial_downloads");
@@ -189,6 +206,7 @@ export default function RecursoDetallePage() {
 
       if (!hasDownloadedThis) {
         if (trialDownloads.length >= 3) {
+          setShowDownloadOptionsModal(false);
           setShowTrialLimitModal(true);
           return;
         } else {
@@ -198,12 +216,55 @@ export default function RecursoDetallePage() {
       }
     }
 
+    // 2. Solo registramos en la base de datos si el usuario está autenticado
+    if (user) {
+      try {
+        await supabase.from('descargas').insert({
+          user_id: user.id,
+          recurso_id: recurso.id
+        });
+      } catch (err) {
+        console.error("Error al registrar descarga:", err);
+      }
+    }
+
+    // 3. Descargar el archivo
+    const link = document.createElement('a');
+    link.href = op.url;
+    link.target = '_blank';
+    link.setAttribute('download', '');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Cerrar el modal de opciones
+    setShowDownloadOptionsModal(false);
+  };
+
+  const handleDownload = async () => {
+    // 1. Verificar límite de descargas de prueba para usuarios invitados (no logueados)
+    if (!user) {
+      const trialDownloadsStr = localStorage.getItem("redi_trial_downloads");
+      const trialDownloads = trialDownloadsStr ? JSON.parse(trialDownloadsStr) : [];
+      const currentId = recurso.id;
+      const hasDownloadedThis = trialDownloads.includes(currentId);
+
+      if (!hasDownloadedThis && trialDownloads.length >= 3) {
+        setShowTrialLimitModal(true);
+        return;
+      }
+    }
+
+    // Si hay más de un formato, mostramos el modal para elegir
+    if (descargaOpciones && descargaOpciones.length > 1) {
+      setShowDownloadOptionsModal(true);
+      return;
+    }
+
+    // Si solo hay un formato (o ninguno guardado en descargaOpciones), procedemos con la descarga directa
     const urlsToDownload: string[] = [];
-    
-    if (descargaOpciones && descargaOpciones.length > 0) {
-      descargaOpciones.forEach(op => {
-        if (op.url) urlsToDownload.push(op.url);
-      });
+    if (descargaOpciones && descargaOpciones.length === 1) {
+      if (descargaOpciones[0].url) urlsToDownload.push(descargaOpciones[0].url);
     } else {
       const singleUrl = recurso.url_archivo || recurso.archivo_url;
       if (singleUrl) urlsToDownload.push(getDirectDownloadUrl(singleUrl));
@@ -213,8 +274,21 @@ export default function RecursoDetallePage() {
       alert("El archivo de descarga aún no está disponible para este recurso.");
       return;
     }
-    
-    // Solo registramos en la base de datos si el usuario está autenticado
+
+    // Registrar descarga de prueba si es invitado
+    if (!user) {
+      const trialDownloadsStr = localStorage.getItem("redi_trial_downloads");
+      const trialDownloads = trialDownloadsStr ? JSON.parse(trialDownloadsStr) : [];
+      const currentId = recurso.id;
+      const hasDownloadedThis = trialDownloads.includes(currentId);
+
+      if (!hasDownloadedThis) {
+        trialDownloads.push(currentId);
+        localStorage.setItem("redi_trial_downloads", JSON.stringify(trialDownloads));
+      }
+    }
+
+    // Registrar en BD si está autenticado
     if (user) {
       try {
         await supabase.from('descargas').insert({
@@ -235,7 +309,7 @@ export default function RecursoDetallePage() {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-      }, idx * 350); // 350ms delay to prevent browser block popup
+      }, idx * 350);
     });
   };
 
@@ -603,6 +677,61 @@ export default function RecursoDetallePage() {
                 Volver después
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showDownloadOptionsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-redi-vino/40 dark:bg-black/60 backdrop-blur-md" 
+            onClick={() => setShowDownloadOptionsModal(false)}
+          />
+          
+          <div className="relative w-full max-w-md bg-redi-beige dark:bg-redi-vino p-8 md:p-10 rounded-[32px] border border-redi-vino/15 dark:border-redi-beige/15 shadow-2xl animate-in fade-in zoom-in-95 duration-200 text-center flex flex-col items-center">
+            <div className="w-12 h-12 bg-redi-red/10 text-redi-red rounded-full flex items-center justify-center mb-6">
+              <Download className="w-6 h-6 animate-bounce" />
+            </div>
+            
+            <h3 className="text-xl font-black text-redi-vino dark:text-redi-beige tracking-tight mb-2 uppercase">
+              Elige el Formato
+            </h3>
+            
+            <p className="text-xs text-redi-vino/70 dark:text-redi-beige/70 font-medium leading-relaxed mb-6">
+              Este recurso está disponible en varios formatos. Selecciona el que deseas descargar:
+            </p>
+            
+            <div className="w-full flex flex-col gap-3">
+              {descargaOpciones.map((op, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleDownloadSingleOption(op)}
+                  className="w-full p-4 bg-white dark:bg-redi-vino/20 border border-redi-vino/10 dark:border-redi-beige/10 hover:border-redi-red dark:hover:border-redi-red hover:bg-redi-red/5 dark:hover:bg-redi-red/5 text-redi-vino dark:text-redi-beige rounded-2xl flex items-center justify-between transition-all group active:scale-[0.98]"
+                >
+                  <div className="flex items-center gap-3 text-left">
+                    <div className="w-10 h-10 rounded-xl bg-redi-vino/5 dark:bg-redi-beige/5 flex items-center justify-center text-xs font-black text-redi-vino dark:text-redi-beige group-hover:text-redi-red group-hover:bg-redi-red/10 transition-colors">
+                      {op.label}
+                    </div>
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-wider group-hover:text-redi-red transition-colors">
+                        Descargar {op.label}
+                      </p>
+                      <p className="text-[10px] text-redi-vino/50 dark:text-redi-beige/50 font-bold uppercase tracking-wider mt-0.5">
+                        {getFormatDescription(op.label)}
+                      </p>
+                    </div>
+                  </div>
+                  <Download className="w-4 h-4 text-redi-vino/40 dark:text-redi-beige/40 group-hover:text-redi-red group-hover:translate-y-0.5 transition-all" />
+                </button>
+              ))}
+            </div>
+            
+            <button
+              onClick={() => setShowDownloadOptionsModal(false)}
+              className="mt-6 text-xs font-black text-redi-vino/40 dark:text-redi-beige/40 hover:text-redi-red dark:hover:text-redi-red uppercase tracking-widest transition-colors"
+            >
+              Cancelar
+            </button>
           </div>
         </div>
       )}

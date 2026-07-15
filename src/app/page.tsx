@@ -24,7 +24,7 @@ const SUBCATEGORIAS_POR_CATEGORIA: Record<string, string[]> = {
   gráficos: ["Texturas", "Pinceles", "Gradientes", "Formas"]
 };
 
-const SUBCATEGORIAS_DEFAULT = ["Vectores", "Texturas", "Fuentes", "3D", "Fondos", "Plantillas", "Mockups"];
+const SUBCATEGORIAS_DEFAULT = ["Vectores", "Texturas", "Fuentes", "3D", "Plantillas", "Mockups"];
 
 function HomeContent() {
   const searchParams = useSearchParams();
@@ -328,8 +328,8 @@ function HomeContent() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            <button 
-              onClick={resetAllFilters}
+            <Link 
+              href="https://redi.framer.media/"
               className="flex items-center"
             >
               <div 
@@ -346,7 +346,7 @@ function HomeContent() {
                 }}
                 aria-label="Redi Logo"
               />
-            </button>
+            </Link>
           </div>
 
           {/* Buscador */}
@@ -417,8 +417,8 @@ function HomeContent() {
         <aside className="w-64 border-r border-redi-vino/10 p-6 hidden md:flex flex-col bg-redi-beige h-screen fixed top-0 left-0 transition-colors overflow-y-auto no-scrollbar gap-2 z-50">
           {/* Logo inside sidebar */}
           <div className="mb-4 pt-2 px-4">
-            <button 
-              onClick={resetAllFilters}
+            <Link 
+              href="https://redi.framer.media/"
               className="flex items-center"
             >
               <div 
@@ -434,7 +434,7 @@ function HomeContent() {
                 }}
                 aria-label="Redi Logo"
               />
-            </button>
+            </Link>
           </div>
 
           <div>

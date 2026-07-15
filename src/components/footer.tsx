@@ -36,7 +36,7 @@ export function Footer() {
         {/* Logo Columna y Social */}
         <div className="lg:w-1/4 flex flex-col gap-6 items-start">
           <div className="flex flex-col gap-2 items-start">
-            <Link href="/">
+            <Link href="https://redi.framer.media/">
               <div 
                 className="w-[80px] h-[31px] bg-redi-vino dark:bg-redi-beige"
                 style={{

@@ -7,6 +7,19 @@ import { ArrowLeft, Upload, Loader2, Image as ImageIcon, FileBox, CheckCircle2 }
 import { supabase } from "@/lib/supabaseClient";
 import { ThemeToggle } from "@/components/theme-toggle";
 
+const SUBCATEGORIAS_POR_CATEGORIA: Record<string, string[]> = {
+  fuentes: ["Serif", "Sans serif", "Script", "Decorative", "Monospace", "Handwritten", "Blackletter", "Symbols", "Duo"],
+  "mock ups": ["Dispositivos", "Papelería", "Editorial", "Ropa", "Packaging", "Cartelería"],
+  mockups: ["Dispositivos", "Papelería", "Editorial", "Ropa", "Packaging", "Cartelería"],
+  ilustraciones: ["Personajes", "Iconos", "Patrones", "Abstracto", "Elementos", "Isométrico"],
+  vectores: ["Personajes", "Iconos", "Patrones", "Abstracto", "Elementos", "Isométrico"],
+  fotos: ["Naturaleza", "Personas", "Arquitectura", "Texturas", "Objetos", "Estudio"],
+  "3d": ["Modelos", "Personajes", "Objetos", "Texturas", "Low Poly"],
+  videos: ["Bucles", "Transiciones", "Efectos"],
+  plantillas: ["Presentaciones", "Redes Sociales", "Portafolios", "Impresos", "Web / UI"],
+  gráficos: ["Texturas", "Pinceles", "Gradientes", "Formas"]
+};
+
 export default function AdminPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -22,6 +35,7 @@ export default function AdminPage() {
   const [dimensiones, setDimensiones] = useState("");
   const [formato, setFormato] = useState("");
   const [categoriaId, setCategoriaId] = useState("");
+  const [subcategoria, setSubcategoria] = useState("");
   const [imagenFile, setImagenFile] = useState<File | null>(null);
   const [linkDescarga, setLinkDescarga] = useState("");
   const [linkDescarga2, setLinkDescarga2] = useState("");
@@ -97,6 +111,7 @@ export default function AdminPage() {
         dimensiones: dimensiones || null,
         formato,
         categoria_id: categoriaId || null,
+        subcategoria: subcategoria || null,
         imagen_url,
         archivo_url: url_archivo || null,
         archivo_url_2: linkDescarga2 || null,
@@ -113,6 +128,7 @@ export default function AdminPage() {
       setDimensiones("");
       setFormato("");
       setCategoriaId("");
+      setSubcategoria("");
       setImagenFile(null);
       setLinkDescarga("");
       setLinkDescarga2("");
@@ -238,7 +254,10 @@ export default function AdminPage() {
               <label className="text-[10px] font-bold text-redi-vino dark:text-redi-beige uppercase tracking-widest ml-1 block">Categoría</label>
               <select
                 value={categoriaId}
-                onChange={(e) => setCategoriaId(e.target.value)}
+                onChange={(e) => {
+                  setCategoriaId(e.target.value);
+                  setSubcategoria(""); // Reset subcategory when category changes
+                }}
                 className="w-full h-14 px-6 bg-transparent border border-redi-vino/20 dark:border-redi-beige/20 rounded-2xl focus:ring-2 focus:ring-redi-red outline-none transition-all font-medium text-sm text-redi-vino dark:text-redi-beige appearance-none"
                 required
               >
@@ -250,12 +269,66 @@ export default function AdminPage() {
             </div>
 
             <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-redi-vino dark:text-redi-beige uppercase tracking-widest ml-1 block">Subcategoría</label>
+              <select
+                value={subcategoria}
+                onChange={(e) => setSubcategoria(e.target.value)}
+                className="w-full h-14 px-6 bg-transparent border border-redi-vino/20 dark:border-redi-beige/20 rounded-2xl focus:ring-2 focus:ring-redi-red outline-none transition-all font-medium text-sm text-redi-vino dark:text-redi-beige appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!categoriaId}
+                required
+              >
+                <option value="" disabled className="text-redi-vino/50 dark:text-redi-beige/50">
+                  {categoriaId ? "Selecciona una subcategoría" : "Primero selecciona una categoría"}
+                </option>
+                {(() => {
+                  const selectedCatObj = categorias.find(c => c.id === categoriaId);
+                  const selectedCatName = selectedCatObj ? selectedCatObj.nombre?.toLowerCase() : "";
+                  
+                  const getSubcategories = (catName: string) => {
+                    const name = catName.toLowerCase();
+                    if (name === "fotos" || name === "imágenes" || name === "imagenes") {
+                      return ["Naturaleza", "Personas", "Arquitectura", "Texturas", "Objetos", "Estudio"];
+                    }
+                    if (name === "ilustraciones" || name === "vectores") {
+                      return ["Personajes", "Iconos", "Patrones", "Abstracto", "Elementos", "Isométrico"];
+                    }
+                    if (name === "mock ups" || name === "mockups") {
+                      return ["Dispositivos", "Papelería", "Editorial", "Ropa", "Packaging", "Cartelería"];
+                    }
+                    if (name === "3d" || name === "modelos 3d") {
+                      return ["Modelos", "Personajes", "Objetos", "Texturas", "Low Poly"];
+                    }
+                    return SUBCATEGORIAS_POR_CATEGORIA[name] || [];
+                  };
+
+                  const subcats = getSubcategories(selectedCatName);
+                  return subcats.map(subcat => (
+                    <option key={subcat} value={subcat} className="text-black">{subcat}</option>
+                  ));
+                })()}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-1.5">
               <label className="text-[10px] font-bold text-redi-vino dark:text-redi-beige uppercase tracking-widest ml-1 block">Formato</label>
               <input
                 type="text"
                 value={formato}
                 onChange={(e) => setFormato(e.target.value)}
                 placeholder="Ej. PSD, JPG o OTF, TTF"
+                className="w-full h-14 px-6 bg-transparent border border-redi-vino/20 dark:border-redi-beige/20 rounded-2xl focus:ring-2 focus:ring-redi-red outline-none transition-all font-medium text-sm text-redi-vino dark:text-redi-beige placeholder:text-redi-vino/50 dark:placeholder:text-redi-beige/50"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-redi-vino dark:text-redi-beige uppercase tracking-widest ml-1 block">Dimensiones (Opcional)</label>
+              <input
+                type="text"
+                value={dimensiones}
+                onChange={(e) => setDimensiones(e.target.value)}
+                placeholder="Ej. 1920x1080px o Variable"
                 className="w-full h-14 px-6 bg-transparent border border-redi-vino/20 dark:border-redi-beige/20 rounded-2xl focus:ring-2 focus:ring-redi-red outline-none transition-all font-medium text-sm text-redi-vino dark:text-redi-beige placeholder:text-redi-vino/50 dark:placeholder:text-redi-beige/50"
               />
             </div>
@@ -268,17 +341,6 @@ export default function AdminPage() {
               onChange={(e) => setDescripcion(e.target.value)}
               placeholder="Añade un texto atractivo..."
               className="w-full p-6 bg-transparent border border-redi-vino/20 dark:border-redi-beige/20 rounded-2xl focus:ring-2 focus:ring-redi-red outline-none transition-all font-medium text-sm text-redi-vino dark:text-redi-beige placeholder:text-redi-vino/50 dark:placeholder:text-redi-beige/50 min-h-[120px] resize-y"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-redi-vino dark:text-redi-beige uppercase tracking-widest ml-1 block">Dimensiones (Opcional)</label>
-            <input
-              type="text"
-              value={dimensiones}
-              onChange={(e) => setDimensiones(e.target.value)}
-              placeholder="Ej. 1920x1080px o Variable"
-              className="w-full h-14 px-6 bg-transparent border border-redi-vino/20 dark:border-redi-beige/20 rounded-2xl focus:ring-2 focus:ring-redi-red outline-none transition-all font-medium text-sm text-redi-vino dark:text-redi-beige placeholder:text-redi-vino/50 dark:placeholder:text-redi-beige/50"
             />
           </div>
 
